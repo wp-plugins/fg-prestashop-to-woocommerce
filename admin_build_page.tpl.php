@@ -48,14 +48,14 @@ if ( !defined( 'ABSPATH' ) ) exit;
 					<td><input id="automatic_empty" name="automatic_empty" type="checkbox" value="1" <?php checked($data['automatic_empty'], 1); ?> /> <label for="automatic_empty" ><?php _e('Automatically remove all the WordPress content before each import', 'fgp2wc'); ?></label></td>
 				</tr>
 				<tr>
-					<th scope="row" colspan="2"><h3><?php _e('Prestashop web site parameters', 'fgp2wc'); ?></h3></th>
+					<th scope="row" colspan="2"><h3><?php _e('PrestaShop web site parameters', 'fgp2wc'); ?></h3></th>
 				</tr>
 				<tr>
 					<th scope="row"><label for="url"><?php _e('URL (beginning with http://)', 'fgp2wc'); ?></label></th>
 					<td><input id="url" name="url" type="text" size="50" value="<?php echo $data['url']; ?>" /></td>
 				</tr>
 				<tr>
-					<th scope="row" colspan="2"><h3><?php _e('Prestashop database parameters', 'fgp2wc'); ?></h3></th>
+					<th scope="row" colspan="2"><h3><?php _e('PrestaShop database parameters', 'fgp2wc'); ?></h3></th>
 				</tr>
 				<tr>
 					<th scope="row"><label for="hostname"><?php _e('Hostname', 'fgp2wc'); ?></label></th>
@@ -78,7 +78,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 					<td><input id="password" name="password" type="password" size="50" value="<?php echo $data['password']; ?>" /></td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="prefix"><?php _e('Prestashop Table Prefix', 'fgp2wc'); ?></label></th>
+					<th scope="row"><label for="prefix"><?php _e('PrestaShop Table Prefix', 'fgp2wc'); ?></label></th>
 					<td><input id="prefix" name="prefix" type="text" size="50" value="<?php echo $data['prefix']; ?>" /></td>
 				</tr>
 				<tr>
@@ -128,7 +128,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 				<tr>
 					<th scope="row">&nbsp;</th>
 					<td><?php submit_button( __('Save settings', 'fgp2wc'), 'secondary', 'save' ); ?>
-					<?php submit_button( __('Import content from Prestashop to WordPress', 'fgp2wc'), 'primary', 'import' ); ?></td>
+					<?php submit_button( __('Import content from PrestaShop to WordPress', 'fgp2wc'), 'primary', 'import' ); ?></td>
 				</tr>
 			</table>
 		</form>
@@ -136,10 +136,22 @@ if ( !defined( 'ABSPATH' ) ) exit;
 	</div>
 	
 	<div style="float:left; width:300px;">
-		<p><?php _e('If you found this plugin useful and it saved you many hours or days, please rate it on <a href="https://wordpress.org/plugins/fg-prestashop-to-woocommerce/">FG Prestashop to WooCommerce</a>. You can also make a donation using the button below.', 'fgp2wc'); ?></p>
+		<h3><?php _e('Do you need extra features?', 'fgp2wc'); ?></h3>
+		<ul style="list-style:disc inside">
+			<li><?php _e('Employees import', 'fgp2wc'); ?></li>
+			<li><?php _e('Customers import', 'fgp2wc'); ?></li>
+			<li><?php _e('Orders import', 'fgp2wc'); ?></li>
+			<li><?php _e('SEO: Prestashop URLs redirect', 'fgp2wc'); ?></li>
+			<li><?php _e('SEO: Meta data import (title, description and keywords)', 'fgp2wc'); ?></li>
+		</ul>
+		<div style="text-align: center;">
+			<a href="http://www.fredericgilles.net/fg-prestashop-to-woocommerce/" target="_blank"><img src="http://www.fredericgilles.net/wp-content/uploads/premium-version.png" alt="Buy Premium Version" /></a>
+		</div>
+		<hr />
+		<p><?php _e('If you found this plugin useful and it saved you many hours or days, please rate it on <a href="https://wordpress.org/plugins/fg-prestashop-to-woocommerce/">FG PrestaShop to WooCommerce</a>. You can also make a donation using the button below.', 'fgp2wc'); ?></p>
 		
 		<div style="text-align: center; margin-top:20px;">
-			<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+			<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
 				<input type="hidden" name="cmd" value="_s-xclick">
 				<input type="hidden" name="hosted_button_id" value="HBQNNBW89W9KS">
 				<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">

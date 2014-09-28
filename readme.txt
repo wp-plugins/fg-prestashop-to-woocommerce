@@ -1,30 +1,44 @@
-=== FG Prestashop to WooCommerce ===
+=== FG PrestaShop to WooCommerce ===
 Contributors: Frédéric GILLES
 Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
 Tested up to: WP 4.0.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
-A plugin to migrate Prestashop e-commerce solution to WooCommerce
+A plugin to migrate PrestaShop e-commerce solution to WooCommerce
 
 == Description ==
 
-This plugin migrates products, categories, tags, images and CMS from Prestashop to WooCommerce/WordPress.
+This plugin migrates products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.
 
-It has been tested with **Prestashop version 1.4, 1.5 and 1.6** and **Wordpress 4.0**. It is compatible with multisite installations.
+It has been tested with **PrestaShop version 1.4, 1.5 and 1.6** and **Wordpress 4.0**. It is compatible with multisite installations.
 
 Major features include:
 
-* migrates Prestashop products
-* migrates Prestashop product images
-* migrates Prestashop product categories
-* migrates Prestashop product tags
-* can import Prestashop CMS as posts or pages
+* migrates PrestaShop products
+* migrates PrestaShop product images
+* migrates PrestaShop product categories
+* migrates PrestaShop product tags
+* migrates PrestaShop CMS (as posts or pages)
 
 No need to subscribe to an external web site.
+
+= Premium version =
+
+The **Premium version** includes these extra features:
+
+* migrates PrestaShop employees
+* migrates PrestaShop customers
+* migrates PrestaShop orders
+* SEO: Redirect the PrestaShop URLs to the new WordPress URLs
+* SEO: Import meta data (browser title, description, keywords, robots) to WordPress SEO
+* the employees and customers can authenticate to WordPress using their PrestaShop passwords
+* ability to do a partial import
+
+The Premium version can be purchased on: http://www.fredericgilles.net/fg-prestashop-to-woocommerce/
 
 == Installation ==
 
@@ -34,8 +48,8 @@ WooCommerce must be installed and activated before running the migration.
 = Installation =
 1.  Install the plugin in the Admin => Plugins menu => Add New => Upload => Select the zip file => Install Now
 2.  Activate the plugin in the Admin => Plugins menu
-3.  Run the importer in Tools > Import > Prestashop
-4.  Configure the plugin settings. You can find the Prestashop database parameters in the Prestashop file settings.inc.php (Prestashop 1.5+) or in the Prestashop Preferences > Database tab (Prestashop 1.4)
+3.  Run the importer in Tools > Import > PrestaShop
+4.  Configure the plugin settings. You can find the PrestaShop database parameters in the PrestaShop file settings.inc.php (PrestaShop 1.5+) or in the PrestaShop Preferences > Database tab (PrestaShop 1.4)
 5.  Test the database connection
 6.  Click on the import button
 
@@ -55,10 +69,25 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 
 == Changelog ==
 
+= 1.1.0 =
+* Compatible with WooCommerce 2.2
+* Fixed: Remove the shop_order_status taxonomy according to WooCommerce 2.2
+* Fixed: The cover image was not imported as featured image if it was not the first image
+* Fixed: Category image path fixed
+* Fixed: The product category images were imported even when the "Skip media" option was checked
+* Tweak: Simplify the posts count function
+
 = 1.0.0 =
-* Initial version: Import Prestashop products, categories, tags, images and CMS
+* Initial version: Import PrestaShop products, categories, tags, images and CMS
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Compatible with WooCommerce 2.2
+Fixed: Remove the shop_order_status taxonomy according to WooCommerce 2.2
+Fixed: The cover image was not imported as featured image if it was not the first image
+Fixed: Category image path fixed
+Fixed: The product category images were imported even when the "Skip media" option was checked
 
 = 1.0.0 =
 Initial version

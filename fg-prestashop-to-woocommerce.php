@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: FG Prestashop to WooCommerce
+ * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
- * Description: A plugin to migrate Prestashop e-commerce solution to WooCommerce
- * Version:     1.0.0
+ * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
+ * Version:     1.1.0
  * Author:      Frédéric GILLES
  */
 
@@ -36,13 +36,12 @@ if ( !class_exists('fgp2wc', false) ) {
 	class fgp2wc extends WP_Importer {
 		
 		public $plugin_options;					// Plug-in options
-		public $media_count = 0;				// Number of imported medias
 		protected $post_type = 'post';			// post or page
 		protected $default_language = 1;		// Default language ID
-		protected $prestashop_version = '';		// Prestashop DB version
+		protected $prestashop_version = '';		// PrestaShop DB version
 		protected $default_backorders = 'no';	// Allow backorders
 		private $product_types = array();
-		private $shop_order_status = array();
+		private $media_count = 0;				// Number of imported medias
 		
 		/**
 		 * Sets up the plugin
@@ -64,7 +63,7 @@ if ( !class_exists('fgp2wc', false) ) {
 		public function init() {
 			load_plugin_textdomain( 'fgp2wc', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		
-			register_importer('fgp2wc', __('Prestashop', 'fgp2wc'), __('Import Prestashop e-commerce solution to WooCommerce', 'fgp2wc'), array($this, 'dispatch'));
+			register_importer('fgp2wc', __('PrestaShop', 'fgp2wc'), __('Import PrestaShop e-commerce solution to WooCommerce', 'fgp2wc'), array($this, 'dispatch'));
 			
 			// Suspend the cache during the migration to avoid exhausted memory problem
 			wp_suspend_cache_addition(true);
@@ -190,22 +189,18 @@ if ( !class_exists('fgp2wc', false) ) {
 		 * 
 		 */
 		private function admin_build_page() {
-			$posts_count = wp_count_posts('post');
-			$pages_count = wp_count_posts('page');
-			$products_count = wp_count_posts('product');
-			$media_count = wp_count_posts('attachment');
 			$cat_count = count(get_categories(array('hide_empty' => 0)));
 			$tags_count = count(get_tags(array('hide_empty' => 0)));
 			
 			$data = $this->plugin_options;
 			
-			$data['title'] = __('Import Prestashop', 'fgp2wc');
-			$data['description'] = __('This plugin will import products, categories, tags, images and CMS from Prestashop to WooCommerce/WordPress.<br />Compatible with Prestashop versions 1.4 to 1.6.', 'fgp2wc');
+			$data['title'] = __('Import PrestaShop', 'fgp2wc');
+			$data['description'] = __('This plugin will import products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop versions 1.4 to 1.6.', 'fgp2wc');
 			$data['description'] .= "<br />\n" . __('For any issue, please read the <a href="http://wordpress.org/plugins/fg-prestashop-to-woocommerce/faq/" target="_blank">FAQ</a> first.', 'fgp2wc');
-			$data['posts_count'] = $posts_count->publish + $posts_count->draft + $posts_count->future + $posts_count->pending;
-			$data['pages_count'] = $pages_count->publish + $pages_count->draft + $pages_count->future + $pages_count->pending;
-			$data['products_count'] = isset($products_count->publish)? $products_count->publish + $products_count->draft + $products_count->future + $products_count->pending : 0;
-			$data['media_count'] = $media_count->inherit;
+			$data['posts_count'] = $this->count_posts('post');
+			$data['pages_count'] = $this->count_posts('page');
+			$data['media_count'] = $this->count_posts('attachment');
+			$data['products_count'] = $this->count_posts('product');
 			$data['database_info'] = array(
 				sprintf(_n('%d category', '%d categories', $cat_count, 'fgp2wc'), $cat_count),
 				sprintf(_n('%d post', '%d posts', $data['posts_count'], 'fgp2wc'), $data['posts_count']),
@@ -223,6 +218,22 @@ if ( !class_exists('fgp2wc', false) ) {
 			// Hook for doing other actions after displaying the admin page
 			do_action('fgp2wc_post_display_admin_page');
 			
+		}
+		
+		/**
+		 * Count the number of posts for a post type
+		 * @param string $post_type
+		 */
+		public function count_posts($post_type) {
+			$count = 0;
+			$excluded_status = array('trash', 'auto-draft');
+			$tab_count = wp_count_posts($post_type);
+			foreach ( $tab_count as $key => $value ) {
+				if ( !in_array($key, $excluded_status) ) {
+					$count += $value;
+				}
+			}
+			return $count;
 		}
 		
 		/**
@@ -265,7 +276,7 @@ if ( !class_exists('fgp2wc', false) ) {
 		}
 		
 		/**
-		 * Open the connection on the Prestashop database
+		 * Open the connection on the PrestaShop database
 		 *
 		 * return boolean Connection successful or not
 		 */
@@ -282,14 +293,14 @@ if ( !class_exists('fgp2wc', false) ) {
 					$prestashop_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Display SQL errors
 				}
 			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Couldn\'t connect to the Prestashop database. Please check your parameters. And be sure the WordPress server can access the Prestashop database.', 'fgp2wc') . '<br />' . $e->getMessage());
+				$this->display_admin_error(__('Couldn\'t connect to the PrestaShop database. Please check your parameters. And be sure the WordPress server can access the PrestaShop database.', 'fgp2wc') . '<br />' . $e->getMessage());
 				return false;
 			}
 			return true;
 		}
 		
 		/**
-		 * Execute a SQL query on the Prestashop database
+		 * Execute a SQL query on the PrestaShop database
 		 * 
 		 * @param string $sql SQL query
 		 * @return array Query result
@@ -515,7 +526,7 @@ SQL;
 			delete_transient('wc_attribute_taxonomies');
 			$wc_product_attributes = array();
 			
-			// Reset the Prestashop last imported post ID
+			// Reset the PrestaShop last imported post ID
 			update_option('fgp2wc_last_prestashop_cms_id', 0);
 			update_option('fgp2wc_last_prestashop_product_id', 0);
 			
@@ -549,14 +560,14 @@ SQL;
 						throw new PDOException($errorInfo[2], $errorInfo[1]);
 					}
 					
-					$this->display_admin_notice(__('Connected with success to the Prestashop database', 'fgp2wc'));
+					$this->display_admin_notice(__('Connected with success to the PrestaShop database', 'fgp2wc'));
 					
 					do_action('fgp2wc_post_test_database_connection');
 					
 					return true;
 					
 				} catch ( PDOException $e ) {
-					$this->display_admin_error(__('Couldn\'t connect to the Prestashop database. Please check your parameters. And be sure the WordPress server can access the Prestashop database.', 'fgp2wc') . '<br />' . $e->getMessage());
+					$this->display_admin_error(__('Couldn\'t connect to the PrestaShop database. Please check your parameters. And be sure the WordPress server can access the PrestaShop database.', 'fgp2wc') . '<br />' . $e->getMessage());
 					return false;
 				}
 				$prestashop_db = null;
@@ -564,11 +575,11 @@ SQL;
 		}
 		
 		/**
-		 * Get some Prestashop information
+		 * Get some PrestaShop information
 		 *
 		 */
 		public function get_prestashop_info() {
-			$message = __('Prestashop data found:', 'fgp2wc') . '<br />';
+			$message = __('PrestaShop data found:', 'fgp2wc') . '<br />';
 			
 			// Products
 			$products_count = $this->get_products_count();
@@ -578,9 +589,17 @@ SQL;
 			$posts_count = $this->get_cms_count();
 			$message .= sprintf(_n('%d article', '%d articles', $posts_count, 'fgp2wc'), $posts_count) . '<br />';
 			
-			// Users
-			$users_count = $this->get_users_count();
-			$message .= sprintf(_n('%d user', '%d users', $users_count, 'fgp2wc'), $users_count) . '<br />';
+			// Employees
+			$employees_count = $this->get_employees_count();
+			$message .= sprintf(_n('%d employee', '%d employees', $employees_count, 'fgp2wc'), $employees_count) . '<br />';
+			
+			// Customers
+			$customers_count = $this->get_customers_count();
+			$message .= sprintf(_n('%d customer', '%d customers', $customers_count, 'fgp2wc'), $customers_count) . '<br />';
+			
+			// Orders
+			$orders_count = $this->get_orders_count();
+			$message .= sprintf(_n('%d order', '%d orders', $orders_count, 'fgp2wc'), $orders_count) . '<br />';
 			
 			$message = apply_filters('fgp2wc_pre_display_prestashop_info', $message);
 			
@@ -588,9 +607,9 @@ SQL;
 		}
 		
 		/**
-		 * Get the number of Prestashop products
+		 * Get the number of PrestaShop products
 		 * 
-		 * $return int Number of products
+		 * @return int Number of products
 		 */
 		private function get_products_count() {
 			$prefix = $this->plugin_options['prefix'];
@@ -604,9 +623,9 @@ SQL;
 		}
 		
 		/**
-		 * Get the number of Prestashop articles
+		 * Get the number of PrestaShop articles
 		 * 
-		 * $return int Number of articles
+		 * @return int Number of articles
 		 */
 		private function get_cms_count() {
 			$prefix = $this->plugin_options['prefix'];
@@ -620,16 +639,47 @@ SQL;
 		}
 		
 		/**
-		 * Get the number of Prestashop users
+		 * Get the number of PrestaShop employees
 		 * 
-		 * $return int Number of users
+		 * @return int Number of employees
 		 */
-		private function get_users_count() {
+		private function get_employees_count() {
 			$prefix = $this->plugin_options['prefix'];
 			$sql = "
 				SELECT COUNT(*) AS nb
 				FROM ${prefix}employee
 				WHERE active = 1
+			";
+			$result = $this->prestashop_query($sql);
+			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+		}
+		
+		/**
+		 * Get the number of PrestaShop customers
+		 * 
+		 * @return int Number of customers
+		 */
+		private function get_customers_count() {
+			$prefix = $this->plugin_options['prefix'];
+			$sql = "
+				SELECT COUNT(*) AS nb
+				FROM ${prefix}customer
+				WHERE active = 1
+			";
+			$result = $this->prestashop_query($sql);
+			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+		}
+		
+		/**
+		 * Get the number of PrestaShop orders
+		 * 
+		 * @return int Number of orders
+		 */
+		private function get_orders_count() {
+			$prefix = $this->plugin_options['prefix'];
+			$sql = "
+				SELECT COUNT(*) AS nb
+				FROM ${prefix}orders
 			";
 			$result = $this->prestashop_query($sql);
 			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
@@ -701,13 +751,15 @@ SQL;
 				do_action('fgp2wc_pre_import');
 				
 				$this->product_types = $this->create_woocommerce_product_types(); // (Re)create the WooCommerce product types
-				$this->shop_order_status = $this->create_woocommerce_shop_order_status(); // (Re)create the WooCommerce shop order status
 				$this->global_tax_rate = $this->get_default_tax_rate();
 				$this->import_configuration();
-				$this->import_cms();
-				$this->import_product_categories();
-				$this->import_products();
-				
+				if ( !isset($this->premium_options['skip_cms']) || !$this->premium_options['skip_cms'] ) {
+					$this->import_cms();
+				}
+				if ( !isset($this->premium_options['skip_products']) || !$this->premium_options['skip_products'] ) {
+					$this->import_product_categories();
+					$this->import_products();
+				}				
 				// Hook for doing other actions after the import
 				do_action('fgp2wc_post_import');
 				
@@ -757,39 +809,7 @@ SQL;
 		}
 		
 		/**
-		 * Create the WooCommerce shop_order_status
-		 *
-		 * @return array Shop order status
-		 */
-		private function create_woocommerce_shop_order_status() {
-			$tab_status = array();
-			$taxonomy = 'shop_order_status';
-			$shop_order_status = array(
-				'pending',
-				'failed',
-				'on-hold',
-				'processing',
-				'completed',
-				'refunded',
-				'cancelled',
-			);
-			
-			foreach ( $shop_order_status as $status ) {
-				$term = get_term_by('slug', $status, $taxonomy);
-				if ( !empty($term) ) {
-					$tab_status[$status] = $term->term_id;
-				} else {
-					$new_term = wp_insert_term($status, $taxonomy);
-					if ( !is_wp_error($new_term) ) {
-						$tab_status[$status] = $new_term['term_id'];
-					}
-				}
-			}
-			return $tab_status;
-		}
-		
-		/**
-		 * Import Prestashop configuration
+		 * Import PrestaShop configuration
 		 */
 		private function import_configuration() {
 			$config = $this->get_configuration();
@@ -1052,13 +1072,15 @@ SQL;
 					}
 					
 					// Category thumbnails
-					if ( ($category['id_parent'] != 0) && ($category['is_root_category'] != 1) ) { // Don't try to import root categories thumbnails
-						$category_thumbnail = $this->build_image_filename('category', $category['id_category']);
-						if ( !empty($category_thumbnail) && function_exists('update_woocommerce_term_meta') ) {
-							$thumbnail_id = $this->import_media($category['name'], $category_thumbnail, $date);
-							if ( !empty($thumbnail_id) ) {
-								$this->media_count++;
-								update_woocommerce_term_meta($new_term['term_id'], 'thumbnail_id', $thumbnail_id);
+					if ( !$this->plugin_options['skip_media'] ) {
+						if ( ($category['id_parent'] != 0) && ($category['is_root_category'] != 1) ) { // Don't try to import root categories thumbnails
+							$category_thumbnail = $this->build_image_filename('category', $category['id_category']);
+							if ( !empty($category_thumbnail) && function_exists('update_woocommerce_term_meta') ) {
+								$thumbnail_id = $this->import_media($category['name'], $category_thumbnail, $date);
+								if ( !empty($thumbnail_id) ) {
+									$this->media_count++;
+									update_woocommerce_term_meta($new_term['term_id'], 'thumbnail_id', $thumbnail_id);
+								}
 							}
 						}
 					}
@@ -1223,10 +1245,10 @@ SQL;
 						$this->add_post_media($new_post_id, $product_medias, $date, true);
 						$this->add_post_media($new_post_id, $this->get_attachment_ids($post_media), $date, false);
 						
-						// Add the Prestashop ID as a post meta
+						// Add the PrestaShop ID as a post meta
 						add_post_meta($new_post_id, '_fgp2wc_old_ps_product_id', $product['id_product'], true);
 						
-						// Increment the Prestashop last imported product ID
+						// Increment the PrestaShop last imported product ID
 						update_option('fgp2wc_last_prestashop_product_id', $product['id_product']);
 						
 						// Hook for doing other actions after inserting the post
@@ -1255,7 +1277,7 @@ SQL;
 		}
 		
 		/**
-		 * Get Prestashop configuration
+		 * Get PrestaShop configuration
 		 *
 		 * @return array of keys/values
 		 */
@@ -1341,8 +1363,15 @@ SQL;
 				$extra_cols = apply_filters('fgp2wc_get_posts_add_extra_cols', '');
 				$extra_joins = apply_filters('fgp2wc_get_posts_add_extra_joins', '');
 				
+				// Index or no index
+				if ( $this->column_exists('cms', 'indexation') ) {
+					$indexation_field = 'a.indexation';
+				} else {
+					$indexation_field = ' 1 AS indexation';
+				}
+				
 				$sql = "
-					SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, cl.link_rewrite AS category, a.position, a.active, c.date_add AS date
+					SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, cl.link_rewrite AS category, a.position, a.active, $indexation_field, c.date_add AS date
 					$extra_cols
 					FROM ${prefix}cms a
 					INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
@@ -1437,7 +1466,7 @@ SQL;
 				$prefix = $this->plugin_options['prefix'];
 				$lang = $this->default_language;
 				if ( !$this->table_exists('stock_available') ) {
-					// Prestashop 1.4
+					// PrestaShop 1.4
 					$sql = "
 						SELECT p.id_product, p.on_sale, p.online_only, p.quantity, p.price, p.reference, p.width, p.height, p.depth, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 						FROM ${prefix}product p
@@ -1447,7 +1476,7 @@ SQL;
 						LIMIT $limit
 					";
 				} else {
-					// Prestashop 1.5+
+					// PrestaShop 1.5+
 					$sql = "
 						SELECT p.id_product, p.on_sale, p.online_only, s.quantity, p.price, p.reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 						FROM ${prefix}product p
@@ -1473,7 +1502,7 @@ SQL;
 		/**
 		 * Get the product images
 		 *
-		 * $param int $product_id Product ID
+		 * @param int $product_id Product ID
 		 * @return array of images
 		 */
 		private function get_product_images($product_id) {
@@ -1488,6 +1517,7 @@ SQL;
 					FROM ${prefix}image i
 					LEFT JOIN ${prefix}image_lang il ON il.id_image = i.id_image AND il.id_lang = '$lang'
 					WHERE i.id_product = '$product_id'
+					ORDER BY i.cover DESC, i.position
 				";
 				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
 				if ( is_object($query) ) {
@@ -1504,7 +1534,7 @@ SQL;
 		/**
 		 * Get the categories from a product
 		 *
-		 * $param int $product_id Prestashop product ID
+		 * @param int $product_id PrestaShop product ID
 		 * @return array of categories
 		 */
 		private function get_product_categories($product_id) {
@@ -1536,7 +1566,7 @@ SQL;
 		/**
 		 * Get the tags from a product
 		 *
-		 * $param int $product_id Prestashop product ID
+		 * @param int $product_id PrestaShop product ID
 		 * @return array of tags
 		 */
 		private function get_product_tags($product_id) {
@@ -1601,8 +1631,7 @@ SQL;
 		private function build_image_filename($type, $id_image) {
 			switch ( $type ) {
 				case 'category':
-					$img_cat_path = version_compare($this->prestashop_version, '1.5', '<')? '/img/tmp/category_' : '/img/c/';
-					$filename = $this->plugin_options['url'] . $img_cat_path . $id_image . '.jpg';
+					$filename = $this->plugin_options['url'] . '/img/c/' . $id_image . '.jpg';
 					break;
 				
 				case 'product':
@@ -1681,7 +1710,7 @@ SQL;
 				return false;
 			}
 
-			// Upload the file from the Prestashop web site to WordPress upload dir
+			// Upload the file from the PrestaShop web site to WordPress upload dir
 			if ( preg_match('/^http/', $filename) ) {
 				if ( $import_external || // External file 
 					preg_match('#^' . $this->plugin_options['url'] . '#', $filename) // Local file
