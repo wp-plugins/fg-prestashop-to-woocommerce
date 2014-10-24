@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.1.0
+ * Version:     1.1.1
  * Author:      Frédéric GILLES
  */
 
@@ -40,7 +40,7 @@ if ( !class_exists('fgp2wc', false) ) {
 		protected $default_language = 1;		// Default language ID
 		protected $prestashop_version = '';		// PrestaShop DB version
 		protected $default_backorders = 'no';	// Allow backorders
-		private $product_types = array();
+		protected $product_types = array();
 		private $media_count = 0;				// Number of imported medias
 		
 		/**
@@ -1631,13 +1631,13 @@ SQL;
 		private function build_image_filename($type, $id_image) {
 			switch ( $type ) {
 				case 'category':
-					$filename = $this->plugin_options['url'] . '/img/c/' . $id_image . '.jpg';
+					$filename = untrailingslashit($this->plugin_options['url']) . '/img/c/' . $id_image . '.jpg';
 					break;
 				
 				case 'product':
 					$subdirs = str_split(strval($id_image));
 					$subdir = implode('/', $subdirs);
-					$filename = $this->plugin_options['url'] . '/img/p/' . $subdir . '/' . $id_image . '.jpg';
+					$filename = untrailingslashit($this->plugin_options['url']) . '/img/p/' . $subdir . '/' . $id_image . '.jpg';
 					break;
 				
 				default: $filename = '';
@@ -1719,6 +1719,8 @@ SQL;
 				} else {
 					return false;
 				}
+			} elseif ( preg_match('#^/img#', $filename) ) {
+				$old_filename = untrailingslashit($this->plugin_options['url']) . $filename;
 			} else {
 				$old_filename = untrailingslashit($this->plugin_options['url']) . '/img/' . $filename;
 			}
