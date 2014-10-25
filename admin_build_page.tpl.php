@@ -138,6 +138,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 	<div style="float:left; width:300px;">
 		<h3><?php _e('Do you need extra features?', 'fgp2wc'); ?></h3>
 		<ul style="list-style:disc inside">
+			<li><?php _e('Product combinations import', 'fgp2wc'); ?></li>
 			<li><?php _e('Employees import', 'fgp2wc'); ?></li>
 			<li><?php _e('Customers import', 'fgp2wc'); ?></li>
 			<li><?php _e('Orders import', 'fgp2wc'); ?></li>

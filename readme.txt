@@ -4,7 +4,7 @@ Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
 Tested up to: WP 4.0.0
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
@@ -30,6 +30,7 @@ No need to subscribe to an external web site.
 
 The **Premium version** includes these extra features:
 
+* migrates PrestaShop product combinations
 * migrates PrestaShop employees
 * migrates PrestaShop customers
 * migrates PrestaShop orders
@@ -55,6 +56,16 @@ WooCommerce must be installed and activated before running the migration.
 
 == Frequently Asked Questions ==
 
+= The import is not complete =
+
+* You can run the migration again and it will continue where it left off.
+* You can add: `define('WP_MEMORY_LIMIT', '512M');` in your wp-config.php file to increase the memory allowed by WordPress
+* You can also increase the memory limit in php.ini if you have write access to this file (ie: memory_limit = 1G).
+
+= Are the product combinations/attributes imported? =
+
+* This is a Premium feature available on: http://www.fredericgilles.net/fg-prestashop-to-woocommerce/
+
 Don't hesitate to let a comment on the forum or to report bugs if you found some.
 https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 
@@ -68,6 +79,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * other can be translated
 
 == Changelog ==
+
+= 1.2.0 =
+* Update the FAQ
 
 = 1.1.1 =
 * Fixed: Some images were not imported
@@ -84,6 +98,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * Initial version: Import PrestaShop products, categories, tags, images and CMS
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Update the FAQ
 
 = 1.1.1 =
 Fixed: Some images were not imported

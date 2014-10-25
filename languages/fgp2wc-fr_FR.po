@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FG Prestashop to WooCommerce\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-28 20:17+0100\n"
-"PO-Revision-Date: 2014-09-28 20:17+0100\n"
+"POT-Creation-Date: 2014-10-25 22:38+0100\n"
+"PO-Revision-Date: 2014-10-25 22:38+0100\n"
 "Last-Translator: F. GILLES\n"
 "Language-Team: F. GILLES\n"
 "Language: fr_FR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.6.9\n"
+"X-Generator: Poedit 1.6.10\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: admin_build_page.tpl.php:22
@@ -226,26 +226,30 @@ msgid "Do you need extra features?"
 msgstr "Vous avez besoin de fonctionnalités supplémentaires ?"
 
 #: admin_build_page.tpl.php:141
+msgid "Product combinations import"
+msgstr "Import des déclinaisons de produit"
+
+#: admin_build_page.tpl.php:142
 msgid "Employees import"
 msgstr "Import des employés"
 
-#: admin_build_page.tpl.php:142
+#: admin_build_page.tpl.php:143
 msgid "Customers import"
 msgstr "Import des clients"
 
-#: admin_build_page.tpl.php:143
+#: admin_build_page.tpl.php:144
 msgid "Orders import"
 msgstr "Import des commandes"
 
-#: admin_build_page.tpl.php:144
+#: admin_build_page.tpl.php:145
 msgid "SEO: Prestashop URLs redirect"
 msgstr "SEO : redirection des URLs de Prestashop"
 
-#: admin_build_page.tpl.php:145
+#: admin_build_page.tpl.php:146
 msgid "SEO: Meta data import (title, description and keywords)"
 msgstr "SEO : Import des meta données (titre, description et mots-clefs)"
 
-#: admin_build_page.tpl.php:151
+#: admin_build_page.tpl.php:152
 msgid ""
 "If you found this plugin useful and it saved you many hours or days, please "
 "rate it on <a href=\"https://wordpress.org/plugins/fg-prestashop-to-"
@@ -258,7 +262,7 @@ msgstr ""
 "WooCommerce</a>. Vous pouvez aussi faire une donation en utilisant le bouton "
 "ci-dessous."
 
-#: admin_build_page.tpl.php:169
+#: admin_build_page.tpl.php:170
 msgid ""
 "All new imported posts or pages and their comments will be deleted from "
 "WordPress."
@@ -266,11 +270,11 @@ msgstr ""
 "Tous les nouveaux articles ou pages importés vont être supprimés de "
 "WordPress."
 
-#: admin_build_page.tpl.php:172
+#: admin_build_page.tpl.php:173
 msgid "All content will be deleted from WordPress."
 msgstr "Toutes les données vont être supprimées de WordPress."
 
-#: admin_build_page.tpl.php:175
+#: admin_build_page.tpl.php:176
 msgid "Please select a remove option."
 msgstr "Veuillez sélectionner une option de suppression."
 
@@ -479,7 +483,7 @@ msgid_plural "%d products imported"
 msgstr[0] "%d produit importé"
 msgstr[1] "%d produits importés"
 
-#: fg-prestashop-to-woocommerce.php:2112
+#: fg-prestashop-to-woocommerce.php:2114
 #, php-format
 msgid "%d media imported"
 msgid_plural "%d medias imported"
