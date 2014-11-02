@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.2.0
+ * Version:     1.3.0
  * Author:      Frédéric GILLES
  */
 
@@ -1218,9 +1218,18 @@ SQL;
 							$price *= $this->global_tax_rate;
 						}
 						
+						// SKU = Stock Keeping Unit
+						$sku = $product['reference'];
+						if ( empty($sku) ) {
+							$sku = $product['supplier_reference'];
+							if ( empty($sku) ) {
+								$sku = $this->get_product_supplier_reference($product['id_product']);
+							}
+						}
+						
 						// Stock
-						$manage_stock = ($product['quantity'] > 0)? 'yes': 'no';
-						$stock_status = ($product['quantity'] > 0)? 'instock': '';
+						$manage_stock = 'yes';
+						$stock_status = ($product['quantity'] > 0)? 'instock': 'outofstock';
 						
 						// Backorders
 						$backorders = $this->allow_backorders($product['out_of_stock']);
@@ -1235,7 +1244,7 @@ SQL;
 						add_post_meta($new_post_id, '_length', floatval($product['depth']), true);
 						add_post_meta($new_post_id, '_width', floatval($product['width']), true);
 						add_post_meta($new_post_id, '_height', floatval($product['height']), true);
-						add_post_meta($new_post_id, '_sku', $product['reference'], true);
+						add_post_meta($new_post_id, '_sku', $sku, true);
 						add_post_meta($new_post_id, '_stock', $product['quantity'], true);
 						add_post_meta($new_post_id, '_manage_stock', $manage_stock, true);
 						add_post_meta($new_post_id, '_backorders', $backorders, true);
@@ -1465,10 +1474,10 @@ SQL;
 			try {
 				$prefix = $this->plugin_options['prefix'];
 				$lang = $this->default_language;
-				if ( !$this->table_exists('stock_available') ) {
+				if ( version_compare($this->prestashop_version, '1.5', '<') ) {
 					// PrestaShop 1.4
 					$sql = "
-						SELECT p.id_product, p.on_sale, p.online_only, p.quantity, p.price, p.reference, p.width, p.height, p.depth, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+						SELECT p.id_product, p.on_sale, p.online_only, p.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 						FROM ${prefix}product p
 						INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
 						WHERE p.id_product > '$last_prestashop_product_id'
@@ -1478,7 +1487,7 @@ SQL;
 				} else {
 					// PrestaShop 1.5+
 					$sql = "
-						SELECT p.id_product, p.on_sale, p.online_only, s.quantity, p.price, p.reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+						SELECT DISTINCT p.id_product, p.on_sale, p.online_only, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 						FROM ${prefix}product p
 						INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
 						LEFT JOIN ${prefix}stock_available AS s ON s.id_product = p.id_product AND s.id_product_attribute = 0
@@ -1593,6 +1602,40 @@ SQL;
 				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
 			}
 			return $tags;
+		}
+		
+		/**
+		 * Get the product supplier reference (PrestaShop 1.5+)
+		 *
+		 * @param int $product_id PrestaShop product ID
+		 * @return string Supplier reference
+		 */
+		private function get_product_supplier_reference($product_id) {
+			global $prestashop_db;
+			$supplier_reference = '';
+
+			if ( version_compare($this->prestashop_version, '1.5', '>=') ) {
+				// PrestaShop 1.5+
+				try {
+					$prefix = $this->plugin_options['prefix'];
+					$sql = "
+						SELECT ps.product_supplier_reference
+						FROM ${prefix}product_supplier ps
+						WHERE ps.id_product = '$product_id'
+						LIMIT 1
+					";
+					$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
+					if ( is_object($query) ) {
+						foreach ( $query as $row ) {
+							$supplier_reference = $row['product_supplier_reference'];
+							break;
+						}
+					}
+				} catch ( PDOException $e ) {
+					$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+				}
+			}
+			return $supplier_reference;
 		}
 		
 		/**
