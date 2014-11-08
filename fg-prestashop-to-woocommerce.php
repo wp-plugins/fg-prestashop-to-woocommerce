@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.3.0
+ * Version:     1.3.1
  * Author:      Frédéric GILLES
  */
 
@@ -1072,14 +1072,17 @@ SQL;
 					}
 					
 					// Category thumbnails
-					if ( !$this->plugin_options['skip_media'] ) {
+					if ( !$this->plugin_options['skip_media'] && function_exists('update_woocommerce_term_meta') ) {
 						if ( ($category['id_parent'] != 0) && ($category['is_root_category'] != 1) ) { // Don't try to import root categories thumbnails
-							$category_thumbnail = $this->build_image_filename('category', $category['id_category']);
-							if ( !empty($category_thumbnail) && function_exists('update_woocommerce_term_meta') ) {
-								$thumbnail_id = $this->import_media($category['name'], $category_thumbnail, $date);
-								if ( !empty($thumbnail_id) ) {
-									$this->media_count++;
-									update_woocommerce_term_meta($new_term['term_id'], 'thumbnail_id', $thumbnail_id);
+							$category_thumbnails = $this->build_image_filenames('category', $category['id_category']); // Get the potential filenames
+							foreach ( $category_thumbnails as $category_thumbnail ) {
+								if ( !empty($category_thumbnail) ) {
+									$thumbnail_id = $this->import_media($category['name'], $category_thumbnail, $date);
+									if ( !empty($thumbnail_id) ) {
+										$this->media_count++;
+										update_woocommerce_term_meta($new_term['term_id'], 'thumbnail_id', $thumbnail_id);
+										break; // the media has been imported, we don't continue with the other potential filenames
+									}
 								}
 							}
 						}
@@ -1143,11 +1146,14 @@ SQL;
 						
 						$images = $this->get_product_images($product['id_product']);
 						foreach ( $images as $image ) {
-							$image_filename = $this->build_image_filename('product', $image['id_image']);
-							$image_name = !empty($image['legend'])? $image['legend'] : $product['name'] . '-' . $image['id_image'];
-							$media_id = $this->import_media($image_name, $image_filename, $date);
-							if ( $media_id !== false ) {
-								$product_medias[] = $media_id;
+							$image_filenames = $this->build_image_filenames('product', $image['id_image'], $product['id_product']); // Get the potential filenames
+							foreach ( $image_filenames as $image_filename ) {
+								$image_name = !empty($image['legend'])? $image['legend'] : $product['name'] . '-' . $image['id_image'];
+								$media_id = $this->import_media($image_name, $image_filename, $date);
+								if ( $media_id !== false ) {
+									$product_medias[] = $media_id;
+									break; // the media has been imported, we don't continue with the other potential filenames
+								}
 							}
 						}
 						$this->media_count += count($product_medias);
@@ -1665,27 +1671,29 @@ SQL;
 		}
 		
 		/**
-		 * Determine the image file name
+		 * Determine potential filenames for the image
 		 *
 		 * @param string $type Image type (category, product)
 		 * @param int $id_image Image ID
+		 * @param int $id_product Product ID
 		 * @return string Image file name
 		 */
-		private function build_image_filename($type, $id_image) {
+		private function build_image_filenames($type, $id_image, $id_product='') {
+			$filenames = array();
 			switch ( $type ) {
 				case 'category':
-					$filename = untrailingslashit($this->plugin_options['url']) . '/img/c/' . $id_image . '.jpg';
+					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/c/' . $id_image . '.jpg';
+					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/c/' . $id_image . '-category.jpg';
 					break;
 				
 				case 'product':
 					$subdirs = str_split(strval($id_image));
 					$subdir = implode('/', $subdirs);
-					$filename = untrailingslashit($this->plugin_options['url']) . '/img/p/' . $subdir . '/' . $id_image . '.jpg';
+					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/p/' . $subdir . '/' . $id_image . '.jpg';
+					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/p/' . $id_product . '-' . $id_image . '.jpg';
 					break;
-				
-				default: $filename = '';
 			}
-			return $filename;
+			return $filenames;
 		}
 		
 		/**
@@ -1785,9 +1793,9 @@ SQL;
 
 			//print "Copy \"$old_filename\" => $new_full_filename<br />";
 			if ( ! @$this->remote_copy($old_filename, $new_full_filename) ) {
-				$error = error_get_last();
-				$error_message = $error['message'];
-				$this->display_admin_error("Can't copy $old_filename to $new_full_filename : $error_message");
+//				$error = error_get_last();
+//				$error_message = $error['message'];
+//				$this->display_admin_error("Can't copy $old_filename to $new_full_filename : $error_message");
 				return false;
 			}
 			
