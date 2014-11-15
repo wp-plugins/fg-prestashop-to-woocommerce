@@ -143,6 +143,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 			<li><?php _e('Employees import', 'fgp2wc'); ?></li>
 			<li><?php _e('Customers import', 'fgp2wc'); ?></li>
 			<li><?php _e('Orders import', 'fgp2wc'); ?></li>
+			<li><?php _e('Ratings and reviews import', 'fgp2wc'); ?></li>
 			<li><?php _e('SEO: Prestashop URLs redirect', 'fgp2wc'); ?></li>
 			<li><?php _e('SEO: Meta data import (title, description and keywords)', 'fgp2wc'); ?></li>
 		</ul>

@@ -4,7 +4,7 @@ Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
 Tested up to: WP 4.0.0
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
@@ -35,6 +35,7 @@ The **Premium version** includes these extra features:
 * migrates PrestaShop employees
 * migrates PrestaShop customers
 * migrates PrestaShop orders
+* migrates PrestaShop ratings and reviews
 * SEO: Redirect the PrestaShop URLs to the new WordPress URLs
 * SEO: Import meta data (browser title, description, keywords, robots) to WordPress SEO
 * the employees and customers can authenticate to WordPress using their PrestaShop passwords
@@ -81,6 +82,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 
 == Changelog ==
 
+= 1.4.0 =
+* Fixed: WordPress database error: [Duplicate entry 'xxx-yyy' for key 'PRIMARY']
+
 = 1.3.1 =
 * Fixed: Some images were not imported on PrestaShop 1.4
 
@@ -106,6 +110,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * Initial version: Import PrestaShop products, categories, tags, images and CMS
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Fixed: WordPress database error: [Duplicate entry 'xxx-yyy' for key 'PRIMARY']
 
 = 1.3.1 =
 Fixed: Some images were not imported on PrestaShop 1.4

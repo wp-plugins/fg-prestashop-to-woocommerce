@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FG Prestashop to WooCommerce\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-02 17:41+0100\n"
-"PO-Revision-Date: 2014-11-02 17:41+0100\n"
+"POT-Creation-Date: 2014-11-15 23:17+0100\n"
+"PO-Revision-Date: 2014-11-15 23:17+0100\n"
 "Last-Translator: F. GILLES\n"
 "Language-Team: F. GILLES\n"
 "Language: fr_FR\n"
@@ -246,14 +246,18 @@ msgid "Orders import"
 msgstr "Import des commandes"
 
 #: admin_build_page.tpl.php:146
+msgid "Ratings and reviews import"
+msgstr "Import des avis"
+
+#: admin_build_page.tpl.php:147
 msgid "SEO: Prestashop URLs redirect"
 msgstr "SEO : redirection des URLs de Prestashop"
 
-#: admin_build_page.tpl.php:147
+#: admin_build_page.tpl.php:148
 msgid "SEO: Meta data import (title, description and keywords)"
 msgstr "SEO : Import des meta données (titre, description et mots-clefs)"
 
-#: admin_build_page.tpl.php:153
+#: admin_build_page.tpl.php:154
 msgid ""
 "If you found this plugin useful and it saved you many hours or days, please "
 "rate it on <a href=\"https://wordpress.org/plugins/fg-prestashop-to-"
@@ -266,7 +270,7 @@ msgstr ""
 "WooCommerce</a>. Vous pouvez aussi faire une donation en utilisant le bouton "
 "ci-dessous."
 
-#: admin_build_page.tpl.php:171
+#: admin_build_page.tpl.php:172
 msgid ""
 "All new imported posts or pages and their comments will be deleted from "
 "WordPress."
@@ -274,11 +278,11 @@ msgstr ""
 "Tous les nouveaux articles ou pages importés vont être supprimés de "
 "WordPress."
 
-#: admin_build_page.tpl.php:174
+#: admin_build_page.tpl.php:175
 msgid "All content will be deleted from WordPress."
 msgstr "Toutes les données vont être supprimées de WordPress."
 
-#: admin_build_page.tpl.php:177
+#: admin_build_page.tpl.php:178
 msgid "Please select a remove option."
 msgstr "Veuillez sélectionner une option de suppression."
 
@@ -400,12 +404,12 @@ msgstr ""
 "vérifier vos paramètres. Et soyez certains que le serveur WordPress ait "
 "accès à la base de données de PrestaShop."
 
-#: fg-prestashop-to-woocommerce.php:321 fg-prestashop-to-woocommerce.php:1313
-#: fg-prestashop-to-woocommerce.php:1350 fg-prestashop-to-woocommerce.php:1403
-#: fg-prestashop-to-woocommerce.php:1441 fg-prestashop-to-woocommerce.php:1506
-#: fg-prestashop-to-woocommerce.php:1538 fg-prestashop-to-woocommerce.php:1570
-#: fg-prestashop-to-woocommerce.php:1602 fg-prestashop-to-woocommerce.php:1635
-#: fg-prestashop-to-woocommerce.php:1662
+#: fg-prestashop-to-woocommerce.php:321 fg-prestashop-to-woocommerce.php:1319
+#: fg-prestashop-to-woocommerce.php:1356 fg-prestashop-to-woocommerce.php:1409
+#: fg-prestashop-to-woocommerce.php:1447 fg-prestashop-to-woocommerce.php:1512
+#: fg-prestashop-to-woocommerce.php:1544 fg-prestashop-to-woocommerce.php:1576
+#: fg-prestashop-to-woocommerce.php:1608 fg-prestashop-to-woocommerce.php:1641
+#: fg-prestashop-to-woocommerce.php:1668
 msgid "Error:"
 msgstr "Erreur :"
 
@@ -474,21 +478,21 @@ msgid_plural "%d tags imported"
 msgstr[0] "%d mot-clef importé"
 msgstr[1] "%d mots-clefs importés"
 
-#: fg-prestashop-to-woocommerce.php:1118
+#: fg-prestashop-to-woocommerce.php:1121
 #, php-format
 msgid "%d product category imported"
 msgid_plural "%d product categories imported"
 msgstr[0] "%d catégorie de produit importée"
 msgstr[1] "%d catégories de produit importées"
 
-#: fg-prestashop-to-woocommerce.php:1269
+#: fg-prestashop-to-woocommerce.php:1275
 #, php-format
 msgid "%d product imported"
 msgid_plural "%d products imported"
 msgstr[0] "%d produit importé"
 msgstr[1] "%d produits importés"
 
-#: fg-prestashop-to-woocommerce.php:2157
+#: fg-prestashop-to-woocommerce.php:2165
 #, php-format
 msgid "%d media imported"
 msgid_plural "%d medias imported"
