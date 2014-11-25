@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FG Prestashop to WooCommerce\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-15 23:17+0100\n"
-"PO-Revision-Date: 2014-11-15 23:17+0100\n"
+"POT-Creation-Date: 2014-11-16 20:26+0100\n"
+"PO-Revision-Date: 2014-11-16 20:27+0100\n"
 "Last-Translator: F. GILLES\n"
 "Language-Team: F. GILLES\n"
 "Language: fr_FR\n"
@@ -250,14 +250,18 @@ msgid "Ratings and reviews import"
 msgstr "Import des avis"
 
 #: admin_build_page.tpl.php:147
+msgid "Discounts/vouchers import"
+msgstr "Import des bons de réduction"
+
+#: admin_build_page.tpl.php:148
 msgid "SEO: Prestashop URLs redirect"
 msgstr "SEO : redirection des URLs de Prestashop"
 
-#: admin_build_page.tpl.php:148
+#: admin_build_page.tpl.php:149
 msgid "SEO: Meta data import (title, description and keywords)"
 msgstr "SEO : Import des meta données (titre, description et mots-clefs)"
 
-#: admin_build_page.tpl.php:154
+#: admin_build_page.tpl.php:155
 msgid ""
 "If you found this plugin useful and it saved you many hours or days, please "
 "rate it on <a href=\"https://wordpress.org/plugins/fg-prestashop-to-"
@@ -270,7 +274,7 @@ msgstr ""
 "WooCommerce</a>. Vous pouvez aussi faire une donation en utilisant le bouton "
 "ci-dessous."
 
-#: admin_build_page.tpl.php:172
+#: admin_build_page.tpl.php:173
 msgid ""
 "All new imported posts or pages and their comments will be deleted from "
 "WordPress."
@@ -278,11 +282,11 @@ msgstr ""
 "Tous les nouveaux articles ou pages importés vont être supprimés de "
 "WordPress."
 
-#: admin_build_page.tpl.php:175
+#: admin_build_page.tpl.php:176
 msgid "All content will be deleted from WordPress."
 msgstr "Toutes les données vont être supprimées de WordPress."
 
-#: admin_build_page.tpl.php:178
+#: admin_build_page.tpl.php:179
 msgid "Please select a remove option."
 msgstr "Veuillez sélectionner une option de suppression."
 

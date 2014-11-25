@@ -3,8 +3,8 @@ Contributors: Frédéric GILLES
 Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
-Tested up to: WP 4.0.0
-Stable tag: 1.4.0
+Tested up to: WP 4.0.1
+Stable tag: 1.5.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
@@ -36,6 +36,7 @@ The **Premium version** includes these extra features:
 * migrates PrestaShop customers
 * migrates PrestaShop orders
 * migrates PrestaShop ratings and reviews
+* migrates PrestaShop discounts/vouchers (cart rules)
 * SEO: Redirect the PrestaShop URLs to the new WordPress URLs
 * SEO: Import meta data (browser title, description, keywords, robots) to WordPress SEO
 * the employees and customers can authenticate to WordPress using their PrestaShop passwords
@@ -64,6 +65,12 @@ WooCommerce must be installed and activated before running the migration.
 * You can add: `define('WP_MEMORY_LIMIT', '512M');` in your wp-config.php file to increase the memory allowed by WordPress
 * You can also increase the memory limit in php.ini if you have write access to this file (ie: memory_limit = 1G).
 
+= The images aren't being imported =
+
+* Please check the URL field. It must contain the URL of the PrestaShop home page
+* Check that the maintenance mode is disabled in PrestaShop
+* Use http instead of https in the URL field
+
 = Are the product combinations/attributes imported? =
 
 * This is a Premium feature available on: http://www.fredericgilles.net/fg-prestashop-to-woocommerce/
@@ -81,6 +88,10 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * other can be translated
 
 == Changelog ==
+
+= 1.5.0 =
+* FAQ updated
+* Tested with WordPress 4.0.1
 
 = 1.4.0 =
 * Fixed: WordPress database error: [Duplicate entry 'xxx-yyy' for key 'PRIMARY']
@@ -110,6 +121,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * Initial version: Import PrestaShop products, categories, tags, images and CMS
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Tested with WordPress 4.0.1
 
 = 1.4.0 =
 Fixed: WordPress database error: [Duplicate entry 'xxx-yyy' for key 'PRIMARY']
