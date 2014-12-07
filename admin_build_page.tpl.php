@@ -105,6 +105,9 @@ if ( !defined( 'ABSPATH' ) ) exit;
 						<input id="force_media_import" name="force_media_import" type="checkbox" value="1" <?php checked($data['force_media_import'], 1); ?> /> <label for="force_media_import" title="<?php _e('Checked: download the media even if it has already been imported. Unchecked: Download only media which were not already imported.', 'fgp2wc'); ?>" ><?php _e('Force media import. Keep unchecked except if you had previously some media download issues.', 'fgp2wc'); ?></label>
 						<br />
 						<input id="first_image_not_in_gallery" name="first_image_not_in_gallery" type="checkbox" value="1" <?php checked($data['first_image_not_in_gallery'], 1, 1); ?> /> <label for="first_image_not_in_gallery"><?php _e("Don't include the first image into the product gallery", 'fgp2wc'); ?></label>
+						<br />
+						<?php _e('Timeout for each media:', 'fgp2wc'); ?>&nbsp;
+						<input id="timeout" name="timeout" type="text" size="5" value="<?php echo $data['timeout']; ?>" /> <?php _e('seconds', 'fgp2wc'); ?>
 					</div></td>
 				</tr>
 				<tr><th><?php _e('Import prices:', 'fgp2wc'); ?></th>
@@ -120,10 +123,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
 				<tr>
 					<th scope="row"><?php _e('Create pages:', 'fgp2wc'); ?></th>
 					<td><input id="import_as_pages" name="import_as_pages" type="checkbox" value="1" <?php checked($data['import_as_pages'], 1); ?> /> <label for="import_as_pages" ><?php _e('Import the CMS as pages instead of posts (without categories)', 'fgp2wc'); ?></label></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php _e('Timeout for each media:', 'fgp2wc'); ?></th>
-					<td><input id="timeout" name="timeout" type="text" size="5" value="<?php echo $data['timeout']; ?>" /> <?php _e('seconds', 'fgp2wc'); ?></td>
 				</tr>
 				<tr>
 					<th scope="row">&nbsp;</th>
