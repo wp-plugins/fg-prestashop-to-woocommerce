@@ -4,7 +4,7 @@ Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
 Tested up to: WP 4.1.0
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
@@ -14,7 +14,7 @@ A plugin to migrate PrestaShop e-commerce solution to WooCommerce
 
 This plugin migrates products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.
 
-It has been tested with **PrestaShop version 1.4, 1.5 and 1.6** and **Wordpress 4.1**. It is compatible with multisite installations.
+It has been tested with **PrestaShop version 1.3, 1.4, 1.5 and 1.6** and **Wordpress 4.1**. It is compatible with multisite installations.
 
 Major features include:
 
@@ -89,6 +89,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 
 == Changelog ==
 
+= 1.8.0 =
+* New: Compatible with PrestaShop 1.3
+
 = 1.7.0 =
 * Tested with WordPress 4.1
 
@@ -127,6 +130,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * Initial version: Import PrestaShop products, categories, tags, images and CMS
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+New: Compatible with PrestaShop 1.3
 
 = 1.7.0 =
 Tested with WordPress 4.1

@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.7.0
+ * Version:     1.8.0
  * Author:      Frédéric GILLES
  */
 
@@ -632,7 +632,6 @@ SQL;
 			$sql = "
 				SELECT COUNT(*) AS nb
 				FROM ${prefix}cms
-				WHERE active = 1
 			";
 			$result = $this->prestashop_query($sql);
 			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
@@ -814,7 +813,7 @@ SQL;
 		private function import_configuration() {
 			$config = $this->get_configuration();
 			$this->default_language = $config['PS_LANG_DEFAULT'];
-			$this->prestashop_version = $config['PS_VERSION_DB'];
+			$this->prestashop_version = isset($config['PS_VERSION_DB'])? $config['PS_VERSION_DB'] : 0;
 			$this->default_backorders = ($config['PS_ORDER_OUT_OF_STOCK'] == 1)? 'yes' : 'no';
 		}
 
@@ -1331,26 +1330,28 @@ SQL;
 			$categories = array();
 
 			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				$sql = "
-					SELECT c.id_cms_category, cl.name, cl.link_rewrite AS slug, cl.description, cp.link_rewrite AS parent
-					FROM ${prefix}cms_category c
-					INNER JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = c.id_cms_category AND cl.id_lang = '$lang'
-					LEFT JOIN ${prefix}cms_category_lang AS cp ON cp.id_cms_category = c.id_parent AND cp.id_lang = '$lang'
-					WHERE c.active = 1
-					ORDER BY c.position
-				";
-				$sql = apply_filters('fgp2wc_get_cms_categories_sql', $sql, $prefix);
-				
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$categories[] = $row;
+				if ( $this->table_exists('cms_category') ) {
+					$prefix = $this->plugin_options['prefix'];
+					$lang = $this->default_language;
+					$sql = "
+						SELECT c.id_cms_category, cl.name, cl.link_rewrite AS slug, cl.description, cp.link_rewrite AS parent
+						FROM ${prefix}cms_category c
+						INNER JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = c.id_cms_category AND cl.id_lang = '$lang'
+						LEFT JOIN ${prefix}cms_category_lang AS cp ON cp.id_cms_category = c.id_parent AND cp.id_lang = '$lang'
+						WHERE c.active = 1
+						ORDER BY c.position
+					";
+					$sql = apply_filters('fgp2wc_get_cms_categories_sql', $sql, $prefix);
+
+					$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
+					if ( is_object($query) ) {
+						foreach ( $query as $row ) {
+							$categories[] = $row;
+						}
 					}
+
+					$categories = apply_filters('fgp2wc_get_cms_categories', $categories);
 				}
-				
-				$categories = apply_filters('fgp2wc_get_cms_categories', $categories);
 				
 			} catch ( PDOException $e ) {
 				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
@@ -1385,18 +1386,33 @@ SQL;
 					$indexation_field = ' 1 AS indexation';
 				}
 				
-				$sql = "
-					SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, cl.link_rewrite AS category, a.position, a.active, $indexation_field, c.date_add AS date
-					$extra_cols
-					FROM ${prefix}cms a
-					INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
-					LEFT JOIN ${prefix}cms_category AS c ON c.id_cms_category = a.id_cms_category
-					LEFT JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = a.id_cms_category AND cl.id_lang = '$lang'
-					WHERE a.id_cms > '$last_prestashop_cms_id'
-					$extra_joins
-					ORDER BY a.id_cms
-					LIMIT $limit
-				";
+				if ( version_compare($this->prestashop_version, '1.4', '<') ) {
+					// PrestaShop 1.3
+					$sql = "
+						SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, '' AS category, 0 AS position, 1 AS active, $indexation_field, '' AS date
+						$extra_cols
+						FROM ${prefix}cms a
+						INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
+						WHERE a.id_cms > '$last_prestashop_cms_id'
+						$extra_joins
+						ORDER BY a.id_cms
+						LIMIT $limit
+					";
+				} else {
+					// PrestaShop 1.4+
+					$sql = "
+						SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, cl.link_rewrite AS category, a.position, a.active, $indexation_field, c.date_add AS date
+						$extra_cols
+						FROM ${prefix}cms a
+						INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
+						LEFT JOIN ${prefix}cms_category AS c ON c.id_cms_category = a.id_cms_category
+						LEFT JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = a.id_cms_category AND cl.id_lang = '$lang'
+						WHERE a.id_cms > '$last_prestashop_cms_id'
+						$extra_joins
+						ORDER BY a.id_cms
+						LIMIT $limit
+					";
+				}
 				$sql = apply_filters('fgp2wc_get_posts_sql', $sql, $prefix, $extra_cols, $extra_joins, $last_prestashop_cms_id, $limit);
 				
 				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
@@ -1424,13 +1440,21 @@ SQL;
 				$prefix = $this->plugin_options['prefix'];
 				$lang = $this->default_language;
 				$root_category_field = version_compare($this->prestashop_version, '1.5', '<')? '0 AS is_root_category' : 'c.is_root_category';
+				if ( version_compare($this->prestashop_version, '1.4', '<') ) {
+					// PrestaShop 1.3
+					$position_field = '0 AS position';
+					$order = 'c.id_category';
+				} else {
+					$position_field = 'c.position';
+					$order = 'c.position';
+				}
 				$sql = "
-					SELECT c.id_category, c.date_add AS date, c.position, c.id_parent, $root_category_field, cl.name, cl.description, cl.link_rewrite AS slug, cp.link_rewrite AS parent
+					SELECT c.id_category, c.date_add AS date, $position_field, c.id_parent, $root_category_field, cl.name, cl.description, cl.link_rewrite AS slug, cp.link_rewrite AS parent
 					FROM ${prefix}category c
 					INNER JOIN ${prefix}category_lang AS cl ON cl.id_category = c.id_category AND cl.id_lang = '$lang'
 					LEFT JOIN ${prefix}category_lang AS cp ON cp.id_category = c.id_parent AND cp.id_lang = '$lang'
 					WHERE c.active = 1
-					ORDER BY c.position
+					ORDER BY $order
 				";
 				$sql = apply_filters('fgp2wc_get_categories_sql', $sql, $prefix);
 				
@@ -1481,9 +1505,19 @@ SQL;
 				$prefix = $this->plugin_options['prefix'];
 				$lang = $this->default_language;
 				if ( version_compare($this->prestashop_version, '1.5', '<') ) {
-					// PrestaShop 1.4
+					if ( version_compare($this->prestashop_version, '1.4', '<') ) {
+						// PrestaShop 1.3
+						$width_field = '0 AS width';
+						$height_field = '0 AS height';
+						$depth_field = '0 AS depth';
+					} else {
+						// PrestaShop 1.4
+						$width_field = 'p.width';
+						$height_field = 'p.height';
+						$depth_field = 'p.depth';
+					}
 					$sql = "
-						SELECT p.id_product, p.on_sale, p.online_only, p.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+						SELECT p.id_product, p.on_sale, p.quantity, p.price, p.reference, p.supplier_reference, $width_field, $height_field, $depth_field, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 						FROM ${prefix}product p
 						INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
 						WHERE p.id_product > '$last_prestashop_product_id'
@@ -1493,7 +1527,7 @@ SQL;
 				} else {
 					// PrestaShop 1.5+
 					$sql = "
-						SELECT DISTINCT p.id_product, p.on_sale, p.online_only, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+						SELECT DISTINCT p.id_product, p.on_sale, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 						FROM ${prefix}product p
 						INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
 						LEFT JOIN ${prefix}stock_available AS s ON s.id_product = p.id_product AND s.id_product_attribute = 0
