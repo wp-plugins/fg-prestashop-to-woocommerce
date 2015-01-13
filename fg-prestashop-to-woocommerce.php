@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.8.0
+ * Version:     1.8.1
  * Author:      Frédéric GILLES
  */
 
@@ -616,7 +616,6 @@ SQL;
 			$sql = "
 				SELECT COUNT(*) AS nb
 				FROM ${prefix}product
-				WHERE active = 1
 			";
 			$result = $this->prestashop_query($sql);
 			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
@@ -1131,6 +1130,7 @@ SQL;
 			
 			$tab_categories = $this->tab_product_categories(); // Get the categories list
 			
+			$image_filename_key = false; // Optimization to get the right image filename
 			do {
 				$products = $this->get_products($step);
 				foreach ( $products as $product ) {
@@ -1145,13 +1145,27 @@ SQL;
 						
 						$images = $this->get_product_images($product['id_product']);
 						foreach ( $images as $image ) {
+							$image_name = !empty($image['legend'])? $image['legend'] : $product['name'] . '-' . $image['id_image'];
 							$image_filenames = $this->build_image_filenames('product', $image['id_image'], $product['id_product']); // Get the potential filenames
-							foreach ( $image_filenames as $image_filename ) {
-								$image_name = !empty($image['legend'])? $image['legend'] : $product['name'] . '-' . $image['id_image'];
-								$media_id = $this->import_media($image_name, $image_filename, $date);
+							
+							// Optimization to get the right image filename
+							$media_id = false;
+							if ( $image_filename_key !== false ) {
+								$media_id = $this->import_media($image_name, $image_filenames[$image_filename_key], $date);
 								if ( $media_id !== false ) {
 									$product_medias[] = $media_id;
-									break; // the media has been imported, we don't continue with the other potential filenames
+								}
+							}
+							if ( $media_id === false ) {
+								foreach ( $image_filenames as $key => $image_filename ) {
+									if ( $key !== $image_filename_key ) {
+										$media_id = $this->import_media($image_name, $image_filename, $date);
+										if ( $media_id !== false ) {
+											$product_medias[] = $media_id;
+											$image_filename_key = $key;
+											break; // the media has been imported, we don't continue with the other potential filenames
+										}
+									}
 								}
 							}
 						}
