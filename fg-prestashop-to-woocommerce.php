@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.8.1
+ * Version:     1.8.2
  * Author:      Frédéric GILLES
  */
 
@@ -1800,6 +1800,9 @@ SQL;
 		 * @return int attachment ID or false
 		 */
 		public function import_media($name, $filename, $date, $options=array()) {
+			if ( $date == '0000-00-00 00:00:00' ) {
+				$date = date('Y-m-d H:i:s');
+			}
 			$import_external = ($this->plugin_options['import_external'] == 1) || (isset($options['force_external']) && $options['force_external'] );
 			
 			$filename = str_replace("%20", " ", $filename); // for filenames with spaces
@@ -1839,7 +1842,7 @@ SQL;
 			$basename = basename($new_filename);
 			$new_full_filename = $new_upload_dir . '/' . $basename;
 
-			//print "Copy \"$old_filename\" => $new_full_filename<br />";
+//			print "Copy \"$old_filename\" => $new_full_filename<br />";
 			if ( ! @$this->remote_copy($old_filename, $new_full_filename) ) {
 //				$error = error_get_last();
 //				$error_message = $error['message'];
@@ -2129,7 +2132,8 @@ SQL;
 			}
 			
 			$response = wp_remote_get($url, array(
-				'timeout'     => $this->plugin_options['timeout'],
+				'timeout'		=> $this->plugin_options['timeout'],
+				'redirection'	=> 0,
 			)); // Uses WordPress HTTP API
 			
 			if ( is_wp_error($response) ) {
