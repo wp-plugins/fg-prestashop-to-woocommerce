@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.8.2
+ * Version:     1.9.0
  * Author:      Frédéric GILLES
  */
 
@@ -41,7 +41,10 @@ if ( !class_exists('fgp2wc', false) ) {
 		protected $prestashop_version = '';		// PrestaShop DB version
 		protected $default_backorders = 'no';	// Allow backorders
 		protected $product_types = array();
+		protected $imported_categories = array();
+		protected $global_tax_rate = 0;
 		private $media_count = 0;				// Number of imported medias
+		private $product_cat_prefix = 'ps_product_cat_';
 		
 		/**
 		 * Sets up the plugin
@@ -195,7 +198,7 @@ if ( !class_exists('fgp2wc', false) ) {
 			$data = $this->plugin_options;
 			
 			$data['title'] = __('Import PrestaShop', 'fgp2wc');
-			$data['description'] = __('This plugin will import products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop versions 1.4 to 1.6.', 'fgp2wc');
+			$data['description'] = __('This plugin will import products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop versions 1.3 to 1.6.', 'fgp2wc');
 			$data['description'] .= "<br />\n" . __('For any issue, please read the <a href="http://wordpress.org/plugins/fg-prestashop-to-woocommerce/faq/" target="_blank">FAQ</a> first.', 'fgp2wc');
 			$data['posts_count'] = $this->count_posts('post');
 			$data['pages_count'] = $this->count_posts('page');
@@ -313,7 +316,7 @@ if ( !class_exists('fgp2wc', false) ) {
 				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
 				if ( is_object($query) ) {
 					foreach ( $query as $row ) {
-						$result = $row;
+						$result[] = $row;
 					}
 				}
 				
@@ -618,7 +621,8 @@ SQL;
 				FROM ${prefix}product
 			";
 			$result = $this->prestashop_query($sql);
-			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+			$products_count = isset($result[0]['nb'])? $result[0]['nb'] : 0;
+			return $products_count;
 		}
 		
 		/**
@@ -633,7 +637,8 @@ SQL;
 				FROM ${prefix}cms
 			";
 			$result = $this->prestashop_query($sql);
-			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+			$cms_count = isset($result[0]['nb'])? $result[0]['nb'] : 0;
+			return $cms_count;
 		}
 		
 		/**
@@ -649,7 +654,8 @@ SQL;
 				WHERE active = 1
 			";
 			$result = $this->prestashop_query($sql);
-			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+			$employees_count = isset($result[0]['nb'])? $result[0]['nb'] : 0;
+			return $employees_count;
 		}
 		
 		/**
@@ -665,7 +671,8 @@ SQL;
 				WHERE active = 1
 			";
 			$result = $this->prestashop_query($sql);
-			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+			$customers_count = isset($result[0]['nb'])? $result[0]['nb'] : 0;
+			return $customers_count;
 		}
 		
 		/**
@@ -680,7 +687,8 @@ SQL;
 				FROM ${prefix}orders
 			";
 			$result = $this->prestashop_query($sql);
-			return is_array($result) && array_key_exists('nb', $result)? $result['nb'] : 0;
+			$orders_count = isset($result[0]['nb'])? $result[0]['nb'] : 0;
+			return $orders_count;
 		}
 		
 		/**
@@ -1040,10 +1048,14 @@ SQL;
 			$terms = array();
 			$taxonomy = 'product_cat';
 			
+			// Set the list of previously imported categories
+			$this->imported_categories = $this->get_all_term_taxonomy_meta($this->product_cat_prefix);
+			
 			$categories = $this->get_all_product_categories();
 			foreach ( $categories as $category ) {
 				
-				if ( get_term_by('slug', $category['slug'], $taxonomy) ) {
+				// Check if the category is already imported
+				if ( array_key_exists($category['id_category'], $this->imported_categories) ) {
 					continue; // Do not import already imported category
 				}
 				
@@ -1063,6 +1075,9 @@ SQL;
 				if ( !is_wp_error($new_term) ) {
 					$cat_count++;
 					$terms[] = $new_term['term_id'];
+					
+					// Store the catogory mapping as a custom post type
+					$this->add_term_taxonomy_meta($this->product_cat_prefix . $category['id_category'], $new_term['term_taxonomy_id']);
 					
 					// Category ordering
 					if ( function_exists('wc_set_term_order') ) {
@@ -1091,20 +1106,22 @@ SQL;
 				}
 			}
 			
+			// Set the list of imported categories
+			$this->imported_categories = $this->get_all_term_taxonomy_meta($this->product_cat_prefix);
+			
 			// Update the categories with their parent ids
 			foreach ( $categories as $category ) {
-				$cat = get_term_by('slug', $category['slug'], $taxonomy);
-				if ( $cat ) {
-					// Parent category
-					if ( !empty($category['parent']) ) {
-						$parent_cat = get_term_by('slug', $category['parent'], $taxonomy);
-						if ( $parent_cat ) {
-							// Hook before editing the category
-							$cat = apply_filters('fgp2wc_pre_edit_category', $cat, $parent_cat);
-							wp_update_term($cat->term_id, $taxonomy, array('parent' => $parent_cat->term_id));
-							// Hook after editing the category
-							do_action('fgp2wc_post_edit_category', $cat);
-						}
+				if ( array_key_exists($category['id_category'], $this->imported_categories) && array_key_exists($category['id_parent'], $this->imported_categories) ) {
+					$cat_id = $this->imported_categories[$category['id_category']];
+					$parent_cat_id = $this->imported_categories[$category['id_parent']];
+					$cat = get_term_by('term_taxonomy_id', $cat_id, $taxonomy);
+					$parent_cat = get_term_by('term_taxonomy_id', $parent_cat_id, $taxonomy);
+					if ( $cat && $parent_cat ) {
+						// Hook before editing the category
+						$cat = apply_filters('fgp2wc_pre_edit_category', $cat, $parent_cat);
+						wp_update_term($cat->term_id, $taxonomy, array('parent' => $parent_cat->term_id));
+						// Hook after editing the category
+						do_action('fgp2wc_post_edit_category', $cat);
 					}
 				}
 			}
@@ -1127,8 +1144,6 @@ SQL;
 		private function import_products() {
 			$products_count = 0;
 			$step = 1000; // to limit the results
-			
-			$tab_categories = $this->tab_product_categories(); // Get the categories list
 			
 			$image_filename_key = false; // Optimization to get the right image filename
 			do {
@@ -1181,9 +1196,8 @@ SQL;
 					$categories_ids = array();
 					$product_categories = $this->get_product_categories($product['id_product']);
 					foreach ( $product_categories as $cat ) {
-						$cat = sanitize_title($cat);
-						if ( array_key_exists($cat, $tab_categories) ) {
-							$categories_ids[] = $tab_categories[$cat];
+						if ( array_key_exists($cat, $this->imported_categories) ) {
+							$categories_ids[] = $this->imported_categories[$cat];
 						}
 					}
 					
@@ -1287,22 +1301,6 @@ SQL;
 			
 			$this->display_admin_notice(sprintf(_n('%d product imported', '%d products imported', $products_count, 'fgp2wc'), $products_count));
 		}
-						
-		/**
-		 * Return an array with all the product categories sorted by name
-		 *
-		 * @return array categoryname => id
-		 */
-		private function tab_product_categories() {
-			$tab_categories = array();
-			$categories = get_terms(array('product_cat'), array('hide_empty' => '0'));
-			if ( is_array($categories) ) {
-				foreach ( $categories as $category ) {
-					$tab_categories[$category->slug] = $category->term_id;
-				}
-			}
-			return $tab_categories;
-		}
 		
 		/**
 		 * Get PrestaShop configuration
@@ -1310,26 +1308,18 @@ SQL;
 		 * @return array of keys/values
 		 */
 		private function get_configuration() {
-			global $prestashop_db;
 			$config = array();
 
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$sql = "
-					SELECT name, value
-					FROM ${prefix}configuration
-				";
-				$sql = apply_filters('fgp2wc_get_categories_sql', $sql, $prefix);
-				
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$config[$row['name']] = $row['value'];
-					}
-				}
-				
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+			$prefix = $this->plugin_options['prefix'];
+			$sql = "
+				SELECT name, value
+				FROM ${prefix}configuration
+			";
+			$sql = apply_filters('fgp2wc_get_categories_sql', $sql, $prefix);
+
+			$result = $this->prestashop_query($sql);
+			foreach ( $result as $row ) {
+				$config[$row['name']] = $row['value'];
 			}
 			return $config;
 		}
@@ -1340,35 +1330,23 @@ SQL;
 		 * @return array of Categories
 		 */
 		private function get_cms_categories() {
-			global $prestashop_db;
 			$categories = array();
+			
+			if ( $this->table_exists('cms_category') ) {
+				$prefix = $this->plugin_options['prefix'];
+				$lang = $this->default_language;
+				$sql = "
+					SELECT c.id_cms_category, cl.name, cl.link_rewrite AS slug, cl.description, cp.link_rewrite AS parent
+					FROM ${prefix}cms_category c
+					INNER JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = c.id_cms_category AND cl.id_lang = '$lang'
+					LEFT JOIN ${prefix}cms_category_lang AS cp ON cp.id_cms_category = c.id_parent AND cp.id_lang = '$lang'
+					WHERE c.active = 1
+					ORDER BY c.position
+				";
+				$sql = apply_filters('fgp2wc_get_cms_categories_sql', $sql, $prefix);
 
-			try {
-				if ( $this->table_exists('cms_category') ) {
-					$prefix = $this->plugin_options['prefix'];
-					$lang = $this->default_language;
-					$sql = "
-						SELECT c.id_cms_category, cl.name, cl.link_rewrite AS slug, cl.description, cp.link_rewrite AS parent
-						FROM ${prefix}cms_category c
-						INNER JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = c.id_cms_category AND cl.id_lang = '$lang'
-						LEFT JOIN ${prefix}cms_category_lang AS cp ON cp.id_cms_category = c.id_parent AND cp.id_lang = '$lang'
-						WHERE c.active = 1
-						ORDER BY c.position
-					";
-					$sql = apply_filters('fgp2wc_get_cms_categories_sql', $sql, $prefix);
-
-					$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-					if ( is_object($query) ) {
-						foreach ( $query as $row ) {
-							$categories[] = $row;
-						}
-					}
-
-					$categories = apply_filters('fgp2wc_get_cms_categories', $categories);
-				}
-				
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+				$categories = $this->prestashop_query($sql);
+				$categories = apply_filters('fgp2wc_get_cms_categories', $categories);
 			}
 			return $categories;
 		}
@@ -1380,64 +1358,54 @@ SQL;
 		 * @return array of Posts
 		 */
 		protected function get_cms_articles($limit=1000) {
-			global $prestashop_db;
 			$articles = array();
 			
 			$last_prestashop_cms_id = (int)get_option('fgp2wc_last_prestashop_cms_id'); // to restore the import where it left
 
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				
-				// Hooks for adding extra cols and extra joins
-				$extra_cols = apply_filters('fgp2wc_get_posts_add_extra_cols', '');
-				$extra_joins = apply_filters('fgp2wc_get_posts_add_extra_joins', '');
-				
-				// Index or no index
-				if ( $this->column_exists('cms', 'indexation') ) {
-					$indexation_field = 'a.indexation';
-				} else {
-					$indexation_field = ' 1 AS indexation';
-				}
-				
-				if ( version_compare($this->prestashop_version, '1.4', '<') ) {
-					// PrestaShop 1.3
-					$sql = "
-						SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, '' AS category, 0 AS position, 1 AS active, $indexation_field, '' AS date
-						$extra_cols
-						FROM ${prefix}cms a
-						INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
-						WHERE a.id_cms > '$last_prestashop_cms_id'
-						$extra_joins
-						ORDER BY a.id_cms
-						LIMIT $limit
-					";
-				} else {
-					// PrestaShop 1.4+
-					$sql = "
-						SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, cl.link_rewrite AS category, a.position, a.active, $indexation_field, c.date_add AS date
-						$extra_cols
-						FROM ${prefix}cms a
-						INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
-						LEFT JOIN ${prefix}cms_category AS c ON c.id_cms_category = a.id_cms_category
-						LEFT JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = a.id_cms_category AND cl.id_lang = '$lang'
-						WHERE a.id_cms > '$last_prestashop_cms_id'
-						$extra_joins
-						ORDER BY a.id_cms
-						LIMIT $limit
-					";
-				}
-				$sql = apply_filters('fgp2wc_get_posts_sql', $sql, $prefix, $extra_cols, $extra_joins, $last_prestashop_cms_id, $limit);
-				
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$articles[] = $row;
-					}
-				}
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+			$prefix = $this->plugin_options['prefix'];
+			$lang = $this->default_language;
+
+			// Hooks for adding extra cols and extra joins
+			$extra_cols = apply_filters('fgp2wc_get_posts_add_extra_cols', '');
+			$extra_joins = apply_filters('fgp2wc_get_posts_add_extra_joins', '');
+
+			// Index or no index
+			if ( $this->column_exists('cms', 'indexation') ) {
+				$indexation_field = 'a.indexation';
+			} else {
+				$indexation_field = ' 1 AS indexation';
 			}
+
+			if ( version_compare($this->prestashop_version, '1.4', '<') ) {
+				// PrestaShop 1.3
+				$sql = "
+					SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, '' AS category, 0 AS position, 1 AS active, $indexation_field, '' AS date
+					$extra_cols
+					FROM ${prefix}cms a
+					INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
+					WHERE a.id_cms > '$last_prestashop_cms_id'
+					$extra_joins
+					ORDER BY a.id_cms
+					LIMIT $limit
+				";
+			} else {
+				// PrestaShop 1.4+
+				$sql = "
+					SELECT a.id_cms, l.meta_title, l.meta_description, l.meta_keywords, l.content, l.link_rewrite AS slug, cl.link_rewrite AS category, a.position, a.active, $indexation_field, c.date_add AS date
+					$extra_cols
+					FROM ${prefix}cms a
+					INNER JOIN ${prefix}cms_lang AS l ON l.id_cms = a.id_cms AND l.id_lang = '$lang'
+					LEFT JOIN ${prefix}cms_category AS c ON c.id_cms_category = a.id_cms_category
+					LEFT JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = a.id_cms_category AND cl.id_lang = '$lang'
+					WHERE a.id_cms > '$last_prestashop_cms_id'
+					$extra_joins
+					ORDER BY a.id_cms
+					LIMIT $limit
+				";
+			}
+			$sql = apply_filters('fgp2wc_get_posts_sql', $sql, $prefix, $extra_cols, $extra_joins, $last_prestashop_cms_id, $limit);
+			$articles = $this->prestashop_query($sql);
+			
 			return $articles;
 		}
 		
@@ -1447,43 +1415,31 @@ SQL;
 		 * @return array of Categories
 		 */
 		private function get_all_product_categories() {
-			global $prestashop_db;
 			$categories = array();
 
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				$root_category_field = version_compare($this->prestashop_version, '1.5', '<')? '0 AS is_root_category' : 'c.is_root_category';
-				if ( version_compare($this->prestashop_version, '1.4', '<') ) {
-					// PrestaShop 1.3
-					$position_field = '0 AS position';
-					$order = 'c.id_category';
-				} else {
-					$position_field = 'c.position';
-					$order = 'c.position';
-				}
-				$sql = "
-					SELECT c.id_category, c.date_add AS date, $position_field, c.id_parent, $root_category_field, cl.name, cl.description, cl.link_rewrite AS slug, cp.link_rewrite AS parent
-					FROM ${prefix}category c
-					INNER JOIN ${prefix}category_lang AS cl ON cl.id_category = c.id_category AND cl.id_lang = '$lang'
-					LEFT JOIN ${prefix}category_lang AS cp ON cp.id_category = c.id_parent AND cp.id_lang = '$lang'
-					WHERE c.active = 1
-					ORDER BY $order
-				";
-				$sql = apply_filters('fgp2wc_get_categories_sql', $sql, $prefix);
-				
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$categories[] = $row;
-					}
-				}
-				
-				$categories = apply_filters('fgp2wc_get_categories', $categories);
-				
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+			$prefix = $this->plugin_options['prefix'];
+			$lang = $this->default_language;
+			$root_category_field = version_compare($this->prestashop_version, '1.5', '<')? '0 AS is_root_category' : 'c.is_root_category';
+			if ( version_compare($this->prestashop_version, '1.4', '<') ) {
+				// PrestaShop 1.3
+				$position_field = '0 AS position';
+				$order = 'c.id_category';
+			} else {
+				$position_field = 'c.position';
+				$order = 'c.position';
 			}
+			$sql = "
+				SELECT c.id_category, c.date_add AS date, $position_field, c.id_parent, $root_category_field, cl.name, cl.description, cl.link_rewrite AS slug
+				FROM ${prefix}category c
+				INNER JOIN ${prefix}category_lang AS cl ON cl.id_category = c.id_category AND cl.id_lang = '$lang'
+				WHERE c.active = 1
+				ORDER BY $order
+			";
+			$sql = apply_filters('fgp2wc_get_categories_sql', $sql, $prefix);
+			$categories = $this->prestashop_query($sql);
+			
+			$categories = apply_filters('fgp2wc_get_categories', $categories);
+			
 			return $categories;
 		}
 		
@@ -1510,55 +1466,46 @@ SQL;
 		 * @return array of products
 		 */
 		private function get_products($limit=1000) {
-			global $prestashop_db;
 			$products = array();
 
 			$last_prestashop_product_id = (int)get_option('fgp2wc_last_prestashop_product_id'); // to restore the import where it left
 			
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				if ( version_compare($this->prestashop_version, '1.5', '<') ) {
-					if ( version_compare($this->prestashop_version, '1.4', '<') ) {
-						// PrestaShop 1.3
-						$width_field = '0 AS width';
-						$height_field = '0 AS height';
-						$depth_field = '0 AS depth';
-					} else {
-						// PrestaShop 1.4
-						$width_field = 'p.width';
-						$height_field = 'p.height';
-						$depth_field = 'p.depth';
-					}
-					$sql = "
-						SELECT p.id_product, p.on_sale, p.quantity, p.price, p.reference, p.supplier_reference, $width_field, $height_field, $depth_field, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
-						FROM ${prefix}product p
-						INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
-						WHERE p.id_product > '$last_prestashop_product_id'
-						ORDER BY p.id_product
-						LIMIT $limit
-					";
+			$prefix = $this->plugin_options['prefix'];
+			$lang = $this->default_language;
+			if ( version_compare($this->prestashop_version, '1.5', '<') ) {
+				if ( version_compare($this->prestashop_version, '1.4', '<') ) {
+					// PrestaShop 1.3
+					$width_field = '0 AS width';
+					$height_field = '0 AS height';
+					$depth_field = '0 AS depth';
 				} else {
-					// PrestaShop 1.5+
-					$sql = "
-						SELECT DISTINCT p.id_product, p.on_sale, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
-						FROM ${prefix}product p
-						INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
-						LEFT JOIN ${prefix}stock_available AS s ON s.id_product = p.id_product AND s.id_product_attribute = 0
-						WHERE p.id_product > '$last_prestashop_product_id'
-						ORDER BY p.id_product
-						LIMIT $limit
-					";
+					// PrestaShop 1.4
+					$width_field = 'p.width';
+					$height_field = 'p.height';
+					$depth_field = 'p.depth';
 				}
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$products[] = $row;
-					}
-				}
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+				$sql = "
+					SELECT p.id_product, p.on_sale, p.quantity, p.price, p.reference, p.supplier_reference, $width_field, $height_field, $depth_field, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+					FROM ${prefix}product p
+					INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
+					WHERE p.id_product > '$last_prestashop_product_id'
+					ORDER BY p.id_product
+					LIMIT $limit
+				";
+			} else {
+				// PrestaShop 1.5+
+				$sql = "
+					SELECT DISTINCT p.id_product, p.on_sale, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+					FROM ${prefix}product p
+					INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang' AND pl.id_shop = p.id_shop_default
+					LEFT JOIN ${prefix}stock_available AS s ON s.id_product = p.id_product AND s.id_product_attribute = 0
+					WHERE p.id_product > '$last_prestashop_product_id'
+					ORDER BY p.id_product
+					LIMIT $limit
+				";
 			}
+			$products = $this->prestashop_query($sql);
+			
 			return $products;
 		}
 		
@@ -1569,28 +1516,19 @@ SQL;
 		 * @return array of images
 		 */
 		private function get_product_images($product_id) {
-			global $prestashop_db;
 			$images = array();
 
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				$sql = "
-					SELECT i.id_image, i.position, i.cover, il.legend
-					FROM ${prefix}image i
-					LEFT JOIN ${prefix}image_lang il ON il.id_image = i.id_image AND il.id_lang = '$lang'
-					WHERE i.id_product = '$product_id'
-					ORDER BY i.cover DESC, i.position
-				";
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$images[] = $row;
-					}
-				}
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
-			}
+			$prefix = $this->plugin_options['prefix'];
+			$lang = $this->default_language;
+			$sql = "
+				SELECT i.id_image, i.position, i.cover, il.legend
+				FROM ${prefix}image i
+				LEFT JOIN ${prefix}image_lang il ON il.id_image = i.id_image AND il.id_lang = '$lang'
+				WHERE i.id_product = '$product_id'
+				ORDER BY i.cover DESC, i.position
+			";
+			$images = $this->prestashop_query($sql);
+			
 			return $images;
 		}
 		
@@ -1598,30 +1536,20 @@ SQL;
 		 * Get the categories from a product
 		 *
 		 * @param int $product_id PrestaShop product ID
-		 * @return array of categories
+		 * @return array of categories IDs
 		 */
 		private function get_product_categories($product_id) {
-			global $prestashop_db;
 			$categories = array();
 
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				$sql = "
-					SELECT cl.link_rewrite AS slug
-					FROM ${prefix}category_product cp
-					INNER JOIN ${prefix}category c ON c.id_category = cp.id_category
-					INNER JOIN ${prefix}category_lang AS cl ON cl.id_category = c.id_category AND cl.id_lang = '$lang'
-					WHERE cp.id_product = $product_id
-				";
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$categories[] = $row['slug'];
-					}
-				}
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+			$prefix = $this->plugin_options['prefix'];
+			$sql = "
+				SELECT cp.id_category
+				FROM ${prefix}category_product cp
+				WHERE cp.id_product = $product_id
+			";
+			$result = $this->prestashop_query($sql);
+			foreach ( $result as $row ) {
+				$categories[] = $row['id_category'];
 			}
 			return $categories;
 		}
@@ -1633,28 +1561,22 @@ SQL;
 		 * @return array of tags
 		 */
 		private function get_product_tags($product_id) {
-			global $prestashop_db;
 			$tags = array();
 
-			try {
-				$prefix = $this->plugin_options['prefix'];
-				$lang = $this->default_language;
-				$sql = "
-					SELECT t.name
-					FROM ${prefix}tag t
-					INNER JOIN ${prefix}product_tag pt ON pt.id_tag = t.id_tag
-					WHERE pt.id_product = $product_id
-					AND t.id_lang = '$lang'
-				";
-				$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-				if ( is_object($query) ) {
-					foreach ( $query as $row ) {
-						$tags[] = $row['name'];
-					}
-				}
-			} catch ( PDOException $e ) {
-				$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+			$prefix = $this->plugin_options['prefix'];
+			$lang = $this->default_language;
+			$sql = "
+				SELECT t.name
+				FROM ${prefix}tag t
+				INNER JOIN ${prefix}product_tag pt ON pt.id_tag = t.id_tag
+				WHERE pt.id_product = $product_id
+				AND t.id_lang = '$lang'
+			";
+			$result = $this->prestashop_query($sql);
+			foreach ( $result as $row ) {
+				$tags[] = $row['name'];
 			}
+			
 			return $tags;
 		}
 		
@@ -1665,28 +1587,20 @@ SQL;
 		 * @return string Supplier reference
 		 */
 		private function get_product_supplier_reference($product_id) {
-			global $prestashop_db;
 			$supplier_reference = '';
-
+			
 			if ( version_compare($this->prestashop_version, '1.5', '>=') ) {
 				// PrestaShop 1.5+
-				try {
-					$prefix = $this->plugin_options['prefix'];
-					$sql = "
-						SELECT ps.product_supplier_reference
-						FROM ${prefix}product_supplier ps
-						WHERE ps.id_product = '$product_id'
-						LIMIT 1
-					";
-					$query = $prestashop_db->query($sql, PDO::FETCH_ASSOC);
-					if ( is_object($query) ) {
-						foreach ( $query as $row ) {
-							$supplier_reference = $row['product_supplier_reference'];
-							break;
-						}
-					}
-				} catch ( PDOException $e ) {
-					$this->display_admin_error(__('Error:', 'fgp2wc') . $e->getMessage());
+				$prefix = $this->plugin_options['prefix'];
+				$sql = "
+					SELECT ps.product_supplier_reference
+					FROM ${prefix}product_supplier ps
+					WHERE ps.id_product = '$product_id'
+					LIMIT 1
+				";
+				$supplier_references = $this->prestashop_query($sql);
+				if ( isset($supplier_references[0]['product_supplier_reference']) ) {
+					$supplier_reference = $supplier_references[0]['product_supplier_reference'];
 				}
 			}
 			return $supplier_reference;
@@ -2123,10 +2037,7 @@ SQL;
 		 */
 		public function remote_copy($url, $path) {
 			
-			/*
-			 * cwg enhancement: if destination already exists, just return true
-			 *  this allows rebuilding the wp media db without moving files
-			 */
+			// Don't copy the file if already copied
 			if ( !$this->plugin_options['force_media_import'] && file_exists($path) && (filesize($path) > 0) ) {
 				return true;
 			}
@@ -2259,17 +2170,69 @@ SQL;
 		}
 		
 		/**
-		 * Search a term by its slug (LIKE search)
+		 * Store a term taxonomy meta as a custom post type
 		 * 
-		 * @param string $slug slug
-		 * @return int Term id
+		 * @param string $key Meta key
+		 * @param mixed $value Meta value
+		 * @return int New post ID
 		 */
-		public function get_term_id_by_slug($slug) {
-			global $wpdb;
-			return $wpdb->get_var("
-				SELECT term_id FROM $wpdb->terms
-				WHERE slug LIKE '$slug'
-			");
+		protected function add_term_taxonomy_meta($key, $value) {
+			$new_post = array(
+				'post_title'		=> $key,
+				'post_type'			=> 'fg_term_meta',
+				'post_content'		=> $value,
+				'post_status'		=> 'publish',
+			);
+			$new_post_id = wp_insert_post($new_post);
+			return $new_post_id;
+		}
+		
+		/**
+		 * Get the term taxonomy meta
+		 * Used to map the PrestaShop categories with the WordPress categories
+		 * 
+		 * @param string $key Meta key
+		 * @return mixed Meta value
+		 */
+		protected function get_term_taxonomy_meta($key) {
+			$post = array(
+				'name'			=> $key,
+				'post_type'		=> 'fg_term_meta',
+				'numberposts'	=> 1,
+			);
+			$posts = get_posts($post);
+			if ( is_array($posts) && (count($posts) > 0) ) {
+				return $posts[0]->content;
+			}
+			return false;
+		}
+		
+		/**
+		 * Get all the term taxonomies meta that begin with a specific prefix
+		 * 
+		 * @param string $prefix Prefix
+		 * @return array List of mapped categories: PrestaShop_Cat_ID => WP_CAT_ID
+		 */
+		protected function get_all_term_taxonomy_meta($prefix) {
+			$metas = array();
+			$matches = array();
+			
+			$post = array(
+				'post_type'			=> 'fg_term_meta',
+				'posts_per_page'	=> -1,
+				'orderby'          => 'post_name',
+				'order'            => 'ASC',
+			);
+			$posts = get_posts($post);
+			if ( is_array($posts) ) {
+				foreach ( $posts as $post ) {
+					if ( preg_match("/^$prefix(.*)/", $post->post_title, $matches) ) {
+						$key = $matches[1];
+						$metas[$key] = $post->post_content;
+					}
+				}
+			}
+			return $metas;
 		}
 		
 	}

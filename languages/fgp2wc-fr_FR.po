@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FG Prestashop to WooCommerce\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-16 20:26+0100\n"
-"PO-Revision-Date: 2014-11-16 20:27+0100\n"
+"POT-Creation-Date: 2015-02-08 09:29+0100\n"
+"PO-Revision-Date: 2015-02-08 09:30+0100\n"
 "Last-Translator: F. GILLES\n"
 "Language-Team: F. GILLES\n"
 "Language: fr_FR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.6.10\n"
+"X-Generator: Poedit 1.7.4\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: admin_build_page.tpl.php:22
@@ -172,15 +172,23 @@ msgstr ""
 msgid "Don't include the first image into the product gallery"
 msgstr "Ne pas inclure la première image dans la galerie"
 
+#: admin_build_page.tpl.php:109
+msgid "Timeout for each media:"
+msgstr "Timeout pour chaque média :"
+
 #: admin_build_page.tpl.php:110
+msgid "seconds"
+msgstr "secondes"
+
+#: admin_build_page.tpl.php:113
 msgid "Import prices:"
 msgstr "Importer les prix :"
 
-#: admin_build_page.tpl.php:112
+#: admin_build_page.tpl.php:115
 msgid "excluding tax"
 msgstr "HT"
 
-#: admin_build_page.tpl.php:113
+#: admin_build_page.tpl.php:116
 msgid ""
 "including tax <small>in this case, you must define a default tax rate before "
 "running the import</small>"
@@ -188,80 +196,72 @@ msgstr ""
 "TTC <small>dans ce cas, vous devez préalablement définir une taxe par "
 "défaut</small>"
 
-#: admin_build_page.tpl.php:117
+#: admin_build_page.tpl.php:120
 msgid "Meta keywords:"
 msgstr "Mots-clefs :"
 
-#: admin_build_page.tpl.php:118
+#: admin_build_page.tpl.php:121
 msgid "Import meta keywords as tags"
 msgstr "Importer les meta keywords en tant que mots-clefs"
 
-#: admin_build_page.tpl.php:121
+#: admin_build_page.tpl.php:124
 msgid "Create pages:"
 msgstr "Créer des pages :"
 
-#: admin_build_page.tpl.php:122
+#: admin_build_page.tpl.php:125
 msgid "Import the CMS as pages instead of posts (without categories)"
 msgstr ""
 "Importer le CMS en tant que pages au lieu d'articles (sans les catégories)"
 
-#: admin_build_page.tpl.php:125
-msgid "Timeout for each media:"
-msgstr "Timeout pour chaque média :"
-
-#: admin_build_page.tpl.php:126
-msgid "seconds"
-msgstr "secondes"
-
-#: admin_build_page.tpl.php:130
+#: admin_build_page.tpl.php:129
 msgid "Save settings"
 msgstr "Enregistrer les paramètres"
 
-#: admin_build_page.tpl.php:131
+#: admin_build_page.tpl.php:130
 msgid "Import content from PrestaShop to WordPress"
 msgstr "Importer le contenu de PrestaShop vers WordPress"
 
-#: admin_build_page.tpl.php:139
+#: admin_build_page.tpl.php:138
 msgid "Do you need extra features?"
 msgstr "Vous avez besoin de fonctionnalités supplémentaires ?"
 
-#: admin_build_page.tpl.php:141
+#: admin_build_page.tpl.php:140
 msgid "Product features import"
 msgstr "Import des caractéristiques de produit"
 
-#: admin_build_page.tpl.php:142
+#: admin_build_page.tpl.php:141
 msgid "Product combinations import"
 msgstr "Import des déclinaisons de produit"
 
-#: admin_build_page.tpl.php:143
+#: admin_build_page.tpl.php:142
 msgid "Employees import"
 msgstr "Import des employés"
 
-#: admin_build_page.tpl.php:144
+#: admin_build_page.tpl.php:143
 msgid "Customers import"
 msgstr "Import des clients"
 
-#: admin_build_page.tpl.php:145
+#: admin_build_page.tpl.php:144
 msgid "Orders import"
 msgstr "Import des commandes"
 
-#: admin_build_page.tpl.php:146
+#: admin_build_page.tpl.php:145
 msgid "Ratings and reviews import"
 msgstr "Import des avis"
 
-#: admin_build_page.tpl.php:147
+#: admin_build_page.tpl.php:146
 msgid "Discounts/vouchers import"
 msgstr "Import des bons de réduction"
 
-#: admin_build_page.tpl.php:148
+#: admin_build_page.tpl.php:147
 msgid "SEO: Prestashop URLs redirect"
 msgstr "SEO : redirection des URLs de Prestashop"
 
-#: admin_build_page.tpl.php:149
+#: admin_build_page.tpl.php:148
 msgid "SEO: Meta data import (title, description and keywords)"
 msgstr "SEO : Import des meta données (titre, description et mots-clefs)"
 
-#: admin_build_page.tpl.php:155
+#: admin_build_page.tpl.php:154
 msgid ""
 "If you found this plugin useful and it saved you many hours or days, please "
 "rate it on <a href=\"https://wordpress.org/plugins/fg-prestashop-to-"
@@ -274,7 +274,7 @@ msgstr ""
 "WooCommerce</a>. Vous pouvez aussi faire une donation en utilisant le bouton "
 "ci-dessous."
 
-#: admin_build_page.tpl.php:173
+#: admin_build_page.tpl.php:172
 msgid ""
 "All new imported posts or pages and their comments will be deleted from "
 "WordPress."
@@ -282,53 +282,53 @@ msgstr ""
 "Tous les nouveaux articles ou pages importés vont être supprimés de "
 "WordPress."
 
-#: admin_build_page.tpl.php:176
+#: admin_build_page.tpl.php:175
 msgid "All content will be deleted from WordPress."
 msgstr "Toutes les données vont être supprimées de WordPress."
 
-#: admin_build_page.tpl.php:179
+#: admin_build_page.tpl.php:178
 msgid "Please select a remove option."
 msgstr "Veuillez sélectionner une option de suppression."
 
-#: fg-prestashop-to-woocommerce.php:66
+#: fg-prestashop-to-woocommerce.php:69
 msgid "PrestaShop"
 msgstr "PrestaShop"
 
-#: fg-prestashop-to-woocommerce.php:66
+#: fg-prestashop-to-woocommerce.php:69
 msgid "Import PrestaShop e-commerce solution to WooCommerce"
 msgstr "Importer la boutique en ligne PrestaShop vers WooCommerce"
 
-#: fg-prestashop-to-woocommerce.php:129
+#: fg-prestashop-to-woocommerce.php:132
 msgid "The wp-content directory must be writable."
 msgstr "Le répertoire wp-content doit avoir les permissions en écriture."
 
-#: fg-prestashop-to-woocommerce.php:137 fg-prestashop-to-woocommerce.php:171
+#: fg-prestashop-to-woocommerce.php:140 fg-prestashop-to-woocommerce.php:174
 msgid "WordPress content removed"
 msgstr "Contenu supprimé de WordPress"
 
-#: fg-prestashop-to-woocommerce.php:139 fg-prestashop-to-woocommerce.php:173
+#: fg-prestashop-to-woocommerce.php:142 fg-prestashop-to-woocommerce.php:176
 msgid "Couldn't remove content"
 msgstr "Impossible de supprimer le contenu"
 
-#: fg-prestashop-to-woocommerce.php:149
+#: fg-prestashop-to-woocommerce.php:152
 msgid "Settings saved"
 msgstr "Paramètres enregistrés"
 
-#: fg-prestashop-to-woocommerce.php:197
+#: fg-prestashop-to-woocommerce.php:200
 msgid "Import PrestaShop"
 msgstr "Import PrestaShop"
 
-#: fg-prestashop-to-woocommerce.php:198
+#: fg-prestashop-to-woocommerce.php:201
 msgid ""
 "This plugin will import products, categories, tags, images and CMS from "
 "PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop "
-"versions 1.4 to 1.6."
+"versions 1.3 to 1.6."
 msgstr ""
 "Cette extension va importer les produits, les catégories, les mots-clefs, "
-"les images et le CMS depuis PrestaShop vers WooCommerce/WordPress.<br /"
-">Compatible avec PrestaShop versions 1.4 à 1.6."
+"les images et le CMS depuis Prestashop vers WooCommerce/WordPress.<br /"
+">Compatible avec Prestashop versions 1.3 à 1.6."
 
-#: fg-prestashop-to-woocommerce.php:199
+#: fg-prestashop-to-woocommerce.php:202
 msgid ""
 "For any issue, please read the <a href=\"http://wordpress.org/plugins/fg-"
 "prestashop-to-woocommerce/faq/\" target=\"_blank\">FAQ</a> first."
@@ -337,57 +337,57 @@ msgstr ""
 "wordpress.org/plugins/fg-prestashop-to-woocommerce/faq/\" target=\"_blank"
 "\">FAQ</a>."
 
-#: fg-prestashop-to-woocommerce.php:205
+#: fg-prestashop-to-woocommerce.php:208
 #, php-format
 msgid "%d category"
 msgid_plural "%d categories"
 msgstr[0] "%d catégorie"
 msgstr[1] "%d catégories"
 
-#: fg-prestashop-to-woocommerce.php:206
+#: fg-prestashop-to-woocommerce.php:209
 #, php-format
 msgid "%d post"
 msgid_plural "%d posts"
 msgstr[0] "%d article"
 msgstr[1] "%d articles"
 
-#: fg-prestashop-to-woocommerce.php:207
+#: fg-prestashop-to-woocommerce.php:210
 #, php-format
 msgid "%d page"
 msgid_plural "%d pages"
 msgstr[0] "%d page"
 msgstr[1] "%d pages"
 
-#: fg-prestashop-to-woocommerce.php:208 fg-prestashop-to-woocommerce.php:586
+#: fg-prestashop-to-woocommerce.php:211 fg-prestashop-to-woocommerce.php:589
 #, php-format
 msgid "%d product"
 msgid_plural "%d products"
 msgstr[0] "%d produit"
 msgstr[1] "%d produits"
 
-#: fg-prestashop-to-woocommerce.php:209
+#: fg-prestashop-to-woocommerce.php:212
 #, php-format
 msgid "%d media"
 msgid_plural "%d medias"
 msgstr[0] "%d média"
 msgstr[1] "%d médias"
 
-#: fg-prestashop-to-woocommerce.php:210
+#: fg-prestashop-to-woocommerce.php:213
 #, php-format
 msgid "%d tag"
 msgid_plural "%d tags"
 msgstr[0] "%d mot-clef"
 msgstr[1] "%d mots-clefs"
 
-#: fg-prestashop-to-woocommerce.php:247
+#: fg-prestashop-to-woocommerce.php:250
 msgid "Instructions"
 msgstr "Instructions"
 
-#: fg-prestashop-to-woocommerce.php:253
+#: fg-prestashop-to-woocommerce.php:256
 msgid "Options"
 msgstr "Options"
 
-#: fg-prestashop-to-woocommerce.php:257
+#: fg-prestashop-to-woocommerce.php:260
 msgid ""
 "<a href=\"http://wordpress.org/plugins/fg-prestashop-to-woocommerce/faq/\" "
 "target=\"_blank\">FAQ</a>"
@@ -395,11 +395,11 @@ msgstr ""
 "<a href=\"http://wordpress.org/plugins/fg-prestashop-to-woocommerce/faq/\" "
 "target=\"_blank\">FAQ</a>"
 
-#: fg-prestashop-to-woocommerce.php:287
+#: fg-prestashop-to-woocommerce.php:290
 msgid "PDO is required. Please enable it."
 msgstr "PDO est requis. Veuillez l'activer."
 
-#: fg-prestashop-to-woocommerce.php:296 fg-prestashop-to-woocommerce.php:570
+#: fg-prestashop-to-woocommerce.php:299 fg-prestashop-to-woocommerce.php:573
 msgid ""
 "Couldn't connect to the PrestaShop database. Please check your parameters. "
 "And be sure the WordPress server can access the PrestaShop database."
@@ -408,100 +408,104 @@ msgstr ""
 "vérifier vos paramètres. Et soyez certains que le serveur WordPress ait "
 "accès à la base de données de PrestaShop."
 
-#: fg-prestashop-to-woocommerce.php:321 fg-prestashop-to-woocommerce.php:1319
-#: fg-prestashop-to-woocommerce.php:1356 fg-prestashop-to-woocommerce.php:1409
-#: fg-prestashop-to-woocommerce.php:1447 fg-prestashop-to-woocommerce.php:1512
-#: fg-prestashop-to-woocommerce.php:1544 fg-prestashop-to-woocommerce.php:1576
-#: fg-prestashop-to-woocommerce.php:1608 fg-prestashop-to-woocommerce.php:1641
-#: fg-prestashop-to-woocommerce.php:1668
+#: fg-prestashop-to-woocommerce.php:324 fg-prestashop-to-woocommerce.php:1630
 msgid "Error:"
 msgstr "Erreur :"
 
-#: fg-prestashop-to-woocommerce.php:535
+#: fg-prestashop-to-woocommerce.php:538
 msgid "WooCommerce data deleted"
 msgstr "Contenu WooCommerce supprimé"
 
-#: fg-prestashop-to-woocommerce.php:540
+#: fg-prestashop-to-woocommerce.php:543
 msgid "WooCommerce default data created"
 msgstr "Contenu par défaut de WooCommerce recréé"
 
-#: fg-prestashop-to-woocommerce.php:563
+#: fg-prestashop-to-woocommerce.php:566
 msgid "Connected with success to the PrestaShop database"
 msgstr "Connecté avec succès à la base de données PrestaShop"
 
-#: fg-prestashop-to-woocommerce.php:582
+#: fg-prestashop-to-woocommerce.php:585
 msgid "PrestaShop data found:"
 msgstr "Données PrestaShop trouvées :"
 
-#: fg-prestashop-to-woocommerce.php:590
+#: fg-prestashop-to-woocommerce.php:593
 #, php-format
 msgid "%d article"
 msgid_plural "%d articles"
 msgstr[0] "%d article"
 msgstr[1] "%d articles"
 
-#: fg-prestashop-to-woocommerce.php:594
+#: fg-prestashop-to-woocommerce.php:597
 #, php-format
 msgid "%d employee"
 msgid_plural "%d employees"
 msgstr[0] "%d employé"
 msgstr[1] "%d employés"
 
-#: fg-prestashop-to-woocommerce.php:598
+#: fg-prestashop-to-woocommerce.php:601
 #, php-format
 msgid "%d customer"
 msgid_plural "%d customers"
 msgstr[0] "%d client"
 msgstr[1] "%d clients"
 
-#: fg-prestashop-to-woocommerce.php:602
+#: fg-prestashop-to-woocommerce.php:605
 #, php-format
 msgid "%d order"
 msgid_plural "%d orders"
 msgstr[0] "%d commande"
 msgstr[1] "%d commandes"
 
-#: fg-prestashop-to-woocommerce.php:893
+#: fg-prestashop-to-woocommerce.php:899
 #, php-format
 msgid "%d category imported"
 msgid_plural "%d categories imported"
 msgstr[0] "%d catégorie importée"
 msgstr[1] "%d catégories importées"
 
-#: fg-prestashop-to-woocommerce.php:1027
+#: fg-prestashop-to-woocommerce.php:1033
 #, php-format
 msgid "%d article imported"
 msgid_plural "%d articles imported"
 msgstr[0] "%d article importé"
 msgstr[1] "%d articles importés"
 
-#: fg-prestashop-to-woocommerce.php:1028
+#: fg-prestashop-to-woocommerce.php:1034
 #, php-format
 msgid "%d tag imported"
 msgid_plural "%d tags imported"
 msgstr[0] "%d mot-clef importé"
 msgstr[1] "%d mots-clefs importés"
 
-#: fg-prestashop-to-woocommerce.php:1121
+#: fg-prestashop-to-woocommerce.php:1136
 #, php-format
 msgid "%d product category imported"
 msgid_plural "%d product categories imported"
 msgstr[0] "%d catégorie de produit importée"
 msgstr[1] "%d catégories de produit importées"
 
-#: fg-prestashop-to-woocommerce.php:1275
+#: fg-prestashop-to-woocommerce.php:1302
 #, php-format
 msgid "%d product imported"
 msgid_plural "%d products imported"
 msgstr[0] "%d produit importé"
 msgstr[1] "%d produits importés"
 
-#: fg-prestashop-to-woocommerce.php:2165
+#: fg-prestashop-to-woocommerce.php:2128
 #, php-format
 msgid "%d media imported"
 msgid_plural "%d medias imported"
 msgstr[0] "%d média importé"
 msgstr[1] "%d médias importés"
+
+#~ msgid ""
+#~ "This plugin will import products, categories, tags, images and CMS from "
+#~ "PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop "
+#~ "versions 1.4 to 1.6."
+#~ msgstr ""
+#~ "Cette extension va importer les produits, les catégories, les mots-clefs, "
+#~ "les images et le CMS depuis PrestaShop vers WooCommerce/WordPress.<br /"
+#~ ">Compatible avec PrestaShop versions 1.4 à 1.6."
 
 #~ msgid "orders"
 #~ msgstr "commandes"
