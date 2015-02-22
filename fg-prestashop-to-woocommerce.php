@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.9.0
+ * Version:     1.9.1
  * Author:      Frédéric GILLES
  */
 
@@ -55,6 +55,7 @@ if ( !class_exists('fgp2wc', false) ) {
 			add_action( 'init', array($this, 'init') ); // Hook on init
 			add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts') );
 			add_action( 'fgp2wc_post_test_database_connection', array($this, 'get_prestashop_info'), 9 );
+			add_action( 'fgp2wc_post_test_database_connection', array ($this, 'test_woocommerce_activation') );
 			add_action( 'load-importer-fgp2wc', array($this, 'add_help_tab'), 20 );
 			add_action( 'fgp2wc_import_notices', array ($this, 'display_media_count') );
 			add_action( 'fgp2wc_post_empty_database', array ($this, 'delete_woocommerce_data'), 10, 1 );
@@ -556,7 +557,7 @@ SQL;
 				try {
 					$prefix = $this->plugin_options['prefix'];
 					
-					// Test that the "content" table exists
+					// Test that the "product" table exists
 					$result = $prestashop_db->query("DESC ${prefix}product");
 					if ( !is_a($result, 'PDOStatement') ) {
 						$errorInfo = $prestashop_db->errorInfo();
@@ -577,6 +578,19 @@ SQL;
 			}
 		}
 		
+		/**
+		 * Test if the WooCommerce plugin is activated
+		 *
+		 * @return bool True if the WooCommerce plugin is activated
+		 */
+		public function test_woocommerce_activation() {
+			if ( !class_exists('WooCommerce', false) ) {
+				$this->display_admin_error(__('Error: the <a href="https://wordpress.org/plugins/woocommerce/" target="_blank">WooCommerce plugin</a> must be installed and activated to import the products.', 'fgp2wc'));
+				return false;
+			}
+			return true;
+		}
+
 		/**
 		 * Get some PrestaShop information
 		 *
@@ -1144,6 +1158,10 @@ SQL;
 		private function import_products() {
 			$products_count = 0;
 			$step = 1000; // to limit the results
+			
+			if ( !$this->test_woocommerce_activation() ) {
+				return 0;
+			}
 			
 			$image_filename_key = false; // Optimization to get the right image filename
 			do {
