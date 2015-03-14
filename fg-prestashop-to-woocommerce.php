@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.10.0
+ * Version:     1.10.1
  * Author:      Frédéric GILLES
  */
 
@@ -1787,10 +1787,15 @@ SQL;
 			$post_name = !empty($name)? $name : preg_replace('/\.[^.]+$/', '', $basename);
 			
 			// If the attachment does not exist yet, insert it in the database
+			$attach_id = 0;
 			$attachment = $this->get_attachment_from_name($post_name);
 			if ( $attachment ) {
-				$attach_id = $attachment->ID;
-			} else {
+				$attached_file = basename(get_attached_file($attachment->ID));
+				if ( $attached_file == $basename ) { // Check if the filename is the same (in case of the legend is not unique)
+					$attach_id = $attachment->ID;
+				}
+			}
+			if ( $attach_id == 0 ) {
 				$attachment_data = array(
 					'guid'				=> $uploads['url'] . '/' . $basename, 
 					'post_date'			=> $date,
