@@ -4,7 +4,7 @@ Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
 Tested up to: 4.1.1
-Stable tag: 1.10.1
+Stable tag: 1.11.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
@@ -59,6 +59,14 @@ WooCommerce must be installed and activated before running the migration.
 
 == Frequently Asked Questions ==
 
+= I get the message: "[fgj2wp] Couldn't connect to the PrestaShop database. Please check your parameters. And be sure the WordPress server can access the PrestaShop database. SQLSTATE[28000] [1045] Access denied for user 'xxx'@'localhost' (using password: YES)" =
+
+* First verify your login and password to your PrestaShop database.
+* If PrestaShop and WordPress are not installed on the same host, you can do this:
+- export the PrestaShop database to a SQL file (with phpMyAdmin for example)
+- import this SQL file on the same database as WordPress
+- run the migration by using WordPress database credentials (host, user, password, database) instead of the PrestaShop ones in the plugin settings.
+
 = The import is not complete =
 
 * You can run the migration again and it will continue where it left off.
@@ -96,6 +104,10 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 
 == Changelog ==
 
+= 1.11.0 =
+* Fixed: Change the default database prefix to ps_
+* FAQ updated
+
 = 1.10.1 =
 * Fixed: Wrong images imported when the image legends are not unique
 
@@ -110,7 +122,7 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 = 1.9.0 =
 * Fixed: Duplicate products when using more than one shop (PrestaShop 1.5+)
 * Fixed: Wrong categories assigned to products when there are category slugs duplicates
-* Fixed: the joomla_query() function was returning only one row
+* Fixed: the prestashop_query() function was returning only one row
 
 = 1.8.2 =
 * Fixed: Some images were imported as question marks
@@ -162,6 +174,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 
 == Upgrade Notice ==
 
+= 1.11.0 =
+Fixed: Change the default database prefix to ps_
+
 = 1.10.1 =
 Fixed: Wrong images imported when the image legends are not unique
 
@@ -176,7 +191,7 @@ Tested with WordPress 4.1.1
 = 1.9.0 =
 Fixed: Duplicate products when using more than one shop (PrestaShop 1.5+)
 Fixed: Wrong categories assigned to products when there are category slugs duplicates
-Fixed: the joomla_query() function was returning only one row
+Fixed: the prestashop_query() function was returning only one row
 
 = 1.8.2 =
 Fixed: Some images were imported as question marks

@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.10.1
+ * Version:     1.11.0
  * Author:      Frédéric GILLES
  */
 
@@ -112,7 +112,7 @@ if ( !class_exists('fgp2wc', false) ) {
 				'database'						=> null,
 				'username'						=> 'root',
 				'password'						=> '',
-				'prefix'						=> 'jos_',
+				'prefix'						=> 'ps_',
 				'skip_media'					=> 0,
 				'first_image'					=> 'as_is_and_featured',
 				'import_external'				=> 0,
