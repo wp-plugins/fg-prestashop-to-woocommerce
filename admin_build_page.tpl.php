@@ -30,7 +30,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 			
 			<table class="form-table">
 				<tr>
-					<th scope="row"><?php _e('If you want to rerun the import, you must empty the WordPress content with the button hereafter.', 'fgp2wc'); ?></th>
+					<th scope="row"><?php _e('If you want to restart the import from scratch, you must empty the WordPress content with the button hereafter.', 'fgp2wc'); ?></th>
 					<td><input type="radio" name="empty_action" id="empty_action_newposts" value="newposts" /> <label for="empty_action_newposts"><?php _e('Remove only new imported posts', 'fgp2wc'); ?></label><br />
 					<input type="radio" name="empty_action" id="empty_action_all" value="all" /> <label for="empty_action_all"><?php _e('Remove all WordPress content', 'fgp2wc'); ?></label><br />
 					<?php submit_button( __('Empty WordPress content', 'fgp2wc'), 'primary', 'empty' ); ?></td>
@@ -146,10 +146,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
 			<li><?php _e('Discounts/vouchers import', 'fgp2wc'); ?></li>
 			<li><?php _e('SEO: Prestashop URLs redirect', 'fgp2wc'); ?></li>
 			<li><?php _e('SEO: Meta data import (title, description and keywords)', 'fgp2wc'); ?></li>
+			<li><?php _e('Manufacturers import', 'fgp2wc'); ?><sup>*</sup></li>
 		</ul>
 		<div style="text-align: center;">
 			<a href="http://www.fredericgilles.net/fg-prestashop-to-woocommerce/" target="_blank"><img src="http://www.fredericgilles.net/wp-content/uploads/premium-version.png" alt="Buy Premium Version" /></a>
 		</div>
+		<p><sup>*</sup><?php _e('This feature needs an add-on in addition to the Premium version.', 'fgj2wp'); ?></p>
 		<hr />
 		<p><?php _e('If you found this plugin useful and it saved you many hours or days, please rate it on <a href="https://wordpress.org/plugins/fg-prestashop-to-woocommerce/">FG PrestaShop to WooCommerce</a>. You can also make a donation using the button below.', 'fgp2wc'); ?></p>
 		

@@ -4,7 +4,7 @@ Plugin Uri: https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
 Tags: prestashop, woocommerce, wordpress, convert prestashop to woocommerce, migrate prestashop to woocommerce, prestashop to woocommerce migration, migrator, converter, import
 Requires at least: 4.0
 Tested up to: 4.1.1
-Stable tag: 1.11.0
+Stable tag: 1.12.0
 License: GPLv2
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fred%2egilles%40free%2efr&lc=FR&item_name=fg-prestashop-to-woocommerce&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 
@@ -43,6 +43,12 @@ The **Premium version** includes these extra features:
 * ability to do a partial import
 
 The Premium version can be purchased on: http://www.fredericgilles.net/fg-prestashop-to-woocommerce/
+
+= Add-ons =
+
+The Premium version allows the use of add-ons that enhance functionality:
+
+* Brands : imports the manufacturers
 
 == Installation ==
 
@@ -103,6 +109,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * other can be translated
 
 == Changelog ==
+
+= 1.12.0 =
+* Fixed: Wrong hook used after product insert (fgp2wc_post_insert_product and not fgp2wc_post_insert_post)
 
 = 1.11.0 =
 * Fixed: Change the default database prefix to ps_
@@ -173,6 +182,9 @@ https://wordpress.org/support/plugin/fg-prestashop-to-woocommerce
 * Initial version: Import PrestaShop products, categories, tags, images and CMS
 
 == Upgrade Notice ==
+
+= 1.12.0 =
+Fixed: Wrong hook used after product insert (fgp2wc_post_insert_product and not fgp2wc_post_insert_post)
 
 = 1.11.0 =
 Fixed: Change the default database prefix to ps_

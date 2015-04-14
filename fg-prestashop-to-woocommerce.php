@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.11.0
+ * Version:     1.12.0
  * Author:      Frédéric GILLES
  */
 
@@ -36,14 +36,14 @@ if ( !class_exists('fgp2wc', false) ) {
 	class fgp2wc extends WP_Importer {
 		
 		public $plugin_options;					// Plug-in options
+		public $default_language = 1;			// Default language ID
+		public $media_count = 0;				// Number of imported medias
 		protected $post_type = 'post';			// post or page
-		protected $default_language = 1;		// Default language ID
 		protected $prestashop_version = '';		// PrestaShop DB version
 		protected $default_backorders = 'no';	// Allow backorders
 		protected $product_types = array();
 		protected $imported_categories = array();
 		protected $global_tax_rate = 0;
-		private $media_count = 0;				// Number of imported medias
 		private $product_cat_prefix = 'ps_product_cat_';
 		
 		/**
@@ -1314,7 +1314,7 @@ SQL;
 						update_option('fgp2wc_last_prestashop_product_id', $product['id_product']);
 						
 						// Hook for doing other actions after inserting the post
-						do_action('fgp2wc_post_insert_post', $new_post_id, $product);
+						do_action('fgp2wc_post_insert_product', $new_post_id, $product);
 					}
 				}
 			} while ( ($products != null) && (count($products) > 0) );
@@ -1505,7 +1505,7 @@ SQL;
 					$depth_field = 'p.depth';
 				}
 				$sql = "
-					SELECT p.id_product, p.on_sale, p.quantity, p.price, p.reference, p.supplier_reference, $width_field, $height_field, $depth_field, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+					SELECT p.id_product, p.id_supplier, p.id_manufacturer, p.on_sale, p.quantity, p.price, p.reference, p.supplier_reference, $width_field, $height_field, $depth_field, p.weight, p.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 					FROM ${prefix}product p
 					INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang'
 					WHERE p.id_product > '$last_prestashop_product_id'
@@ -1515,7 +1515,7 @@ SQL;
 			} else {
 				// PrestaShop 1.5+
 				$sql = "
-					SELECT DISTINCT p.id_product, p.on_sale, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
+					SELECT DISTINCT p.id_product, p.id_supplier, p.id_manufacturer, p.on_sale, s.quantity, p.price, p.reference, p.supplier_reference, p.width, p.height, p.depth, p.weight, s.out_of_stock, p.active, p.date_add AS date, pl.name, pl.link_rewrite AS slug, pl.description, pl.description_short, pl.meta_description, pl.meta_keywords, pl.meta_title
 					FROM ${prefix}product p
 					INNER JOIN ${prefix}product_lang AS pl ON pl.id_product = p.id_product AND pl.id_lang = '$lang' AND pl.id_shop = p.id_shop_default
 					LEFT JOIN ${prefix}stock_available AS s ON s.id_product = p.id_product AND s.id_product_attribute = 0
@@ -2262,4 +2262,3 @@ SQL;
 		
 	}
 }
-?>
