@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.12.0
+ * Version:     1.13.0
  * Author:      Frédéric GILLES
  */
 
@@ -1182,26 +1182,9 @@ SQL;
 						foreach ( $images as $image ) {
 							$image_name = !empty($image['legend'])? $image['legend'] : $product['name'] . '-' . $image['id_image'];
 							$image_filenames = $this->build_image_filenames('product', $image['id_image'], $product['id_product']); // Get the potential filenames
-							
-							// Optimization to get the right image filename
-							$media_id = false;
-							if ( $image_filename_key !== false ) {
-								$media_id = $this->import_media($image_name, $image_filenames[$image_filename_key], $date);
-								if ( $media_id !== false ) {
-									$product_medias[] = $media_id;
-								}
-							}
-							if ( $media_id === false ) {
-								foreach ( $image_filenames as $key => $image_filename ) {
-									if ( $key !== $image_filename_key ) {
-										$media_id = $this->import_media($image_name, $image_filename, $date);
-										if ( $media_id !== false ) {
-											$product_medias[] = $media_id;
-											$image_filename_key = $key;
-											break; // the media has been imported, we don't continue with the other potential filenames
-										}
-									}
-								}
+							$media_id = $this->guess_import_media($image_name, $image_filenames, $image_filename_key, $date);
+							if ( $media_id !== false ) {
+								$product_medias[] = $media_id;
 							}
 						}
 						$this->media_count += count($product_medias);
@@ -1320,6 +1303,31 @@ SQL;
 			} while ( ($products != null) && (count($products) > 0) );
 			
 			$this->display_admin_notice(sprintf(_n('%d product imported', '%d products imported', $products_count, 'fgp2wc'), $products_count));
+		}
+		
+		/**
+		 * Import a media by guessing its name
+		 * 
+		 * @return int media ID
+		 */
+		protected function guess_import_media($image_name, $image_filenames, &$image_filename_key=false, $date='') {
+			// Optimization to get the right image filename
+			$media_id = false;
+			if ( $image_filename_key !== false ) {
+				$media_id = $this->import_media($image_name, $image_filenames[$image_filename_key], $date);
+			}
+			if ( $media_id === false ) {
+				foreach ( $image_filenames as $key => $image_filename ) {
+					if ( $key !== $image_filename_key ) {
+						$media_id = $this->import_media($image_name, $image_filename, $date);
+						if ( $media_id !== false ) {
+							$image_filename_key = $key;
+							break; // the media has been imported, we don't continue with the other potential filenames
+						}
+					}
+				}
+			}
+			return $media_id;
 		}
 		
 		/**
@@ -1660,7 +1668,7 @@ SQL;
 		 * @param int $id_product Product ID
 		 * @return string Image file name
 		 */
-		private function build_image_filenames($type, $id_image, $id_product='') {
+		protected function build_image_filenames($type, $id_image, $id_product='') {
 			$filenames = array();
 			switch ( $type ) {
 				case 'category':
@@ -1733,8 +1741,8 @@ SQL;
 		 * @param array $options Options
 		 * @return int attachment ID or false
 		 */
-		public function import_media($name, $filename, $date, $options=array()) {
-			if ( $date == '0000-00-00 00:00:00' ) {
+		public function import_media($name, $filename, $date='', $options=array()) {
+			if ( empty($date) || ($date == '0000-00-00 00:00:00') ) {
 				$date = date('Y-m-d H:i:s');
 			}
 			$import_external = ($this->plugin_options['import_external'] == 1) || (isset($options['force_external']) && $options['force_external'] );
@@ -1774,7 +1782,11 @@ SQL;
 			}
 
 			$basename = basename($new_filename);
-			$new_full_filename = $new_upload_dir . '/' . $basename;
+			$extension = substr(strrchr($basename, '.'), 1);
+			$basename_without_extension = preg_replace('/(\.[^.]+)$/', '', $basename);
+			$post_title = $name;
+			$post_name = sanitize_title($basename_without_extension . '-' . $name);
+			$new_full_filename = $new_upload_dir . '/' . $post_name . '.' . $extension;
 
 //			print "Copy \"$old_filename\" => $new_full_filename<br />";
 			if ( ! @$this->remote_copy($old_filename, $new_full_filename) ) {
@@ -1784,16 +1796,11 @@ SQL;
 				return false;
 			}
 			
-			$post_name = !empty($name)? $name : preg_replace('/\.[^.]+$/', '', $basename);
-			
 			// If the attachment does not exist yet, insert it in the database
 			$attach_id = 0;
 			$attachment = $this->get_attachment_from_name($post_name);
 			if ( $attachment ) {
-				$attached_file = basename(get_attached_file($attachment->ID));
-				if ( $attached_file == $basename ) { // Check if the filename is the same (in case of the legend is not unique)
-					$attach_id = $attachment->ID;
-				}
+				$attach_id = $attachment->ID;
 			}
 			if ( $attach_id == 0 ) {
 				$attachment_data = array(
@@ -1801,7 +1808,7 @@ SQL;
 					'post_date'			=> $date,
 					'post_mime_type'	=> $filetype['type'],
 					'post_name'			=> $post_name,
-					'post_title'		=> $post_name,
+					'post_title'		=> $post_title,
 					'post_status'		=> 'inherit',
 					'post_content'		=> '',
 				);
