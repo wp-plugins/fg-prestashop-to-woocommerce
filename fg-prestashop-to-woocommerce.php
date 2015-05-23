@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.14.0
+ * Version:     1.16.0
  * Author:      Frédéric GILLES
  */
 
@@ -38,8 +38,8 @@ if ( !class_exists('fgp2wc', false) ) {
 		public $plugin_options;					// Plug-in options
 		public $default_language = 1;			// Default language ID
 		public $media_count = 0;				// Number of imported medias
+		public $prestashop_version = '';		// PrestaShop DB version
 		protected $post_type = 'post';			// post or page
-		protected $prestashop_version = '';		// PrestaShop DB version
 		protected $default_backorders = 'no';	// Allow backorders
 		protected $product_types = array();
 		protected $imported_categories = array();
@@ -1360,16 +1360,23 @@ SQL;
 		private function get_cms_categories() {
 			$categories = array();
 			
-			if ( $this->table_exists('cms_category') ) {
+			if ( version_compare($this->prestashop_version, '1.1', '<=') ) {
+				$category_table = 'category'; // PrestaShop 1.1
+				$order = 'c.id_category';
+			} else {
+				$category_table = 'cms_category';
+				$order = 'c.position';
+			}
+			if ( $this->table_exists($category_table) ) {
 				$prefix = $this->plugin_options['prefix'];
 				$lang = $this->default_language;
 				$sql = "
-					SELECT c.id_cms_category, cl.name, cl.link_rewrite AS slug, cl.description, cp.link_rewrite AS parent
-					FROM ${prefix}cms_category c
-					INNER JOIN ${prefix}cms_category_lang AS cl ON cl.id_cms_category = c.id_cms_category AND cl.id_lang = '$lang'
-					LEFT JOIN ${prefix}cms_category_lang AS cp ON cp.id_cms_category = c.id_parent AND cp.id_lang = '$lang'
+					SELECT c.id_${category_table}, cl.name, cl.link_rewrite AS slug, cl.description, cp.link_rewrite AS parent
+					FROM ${prefix}${category_table} c
+					INNER JOIN ${prefix}${category_table}_lang AS cl ON cl.id_${category_table} = c.id_${category_table} AND cl.id_lang = '$lang'
+					LEFT JOIN ${prefix}${category_table}_lang AS cp ON cp.id_${category_table} = c.id_parent AND cp.id_lang = '$lang'
 					WHERE c.active = 1
-					ORDER BY c.position
+					ORDER BY $order
 				";
 				$sql = apply_filters('fgp2wc_get_cms_categories_sql', $sql, $prefix);
 
@@ -1674,6 +1681,10 @@ SQL;
 				case 'category':
 					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/c/' . $id_image . '.jpg';
 					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/c/' . $id_image . '-category.jpg';
+					break;
+				
+				case 'attribute_texture':
+					$filenames[] = untrailingslashit($this->plugin_options['url']) . '/img/co/' . $id_image . '.jpg';
 					break;
 				
 				case 'product':

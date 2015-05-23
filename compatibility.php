@@ -51,6 +51,7 @@ if (!function_exists('parse_ini_string')) {
 	if ( !defined('INI_SCANNER_NORMAL') ) define('INI_SCANNER_NORMAL', 0);
 	if ( !defined('INI_SCANNER_RAW') ) define('INI_SCANNER_RAW', 1);
 	function parse_ini_string($str, $process_sections = false,  $scanner_mode = INI_SCANNER_NORMAL) {
+		$matches = array();
 		
 		if(empty($str)) return false;
 
@@ -110,5 +111,3 @@ if (!function_exists('parse_ini_string')) {
 		return $ret;
 	}
 }
-
-?>
