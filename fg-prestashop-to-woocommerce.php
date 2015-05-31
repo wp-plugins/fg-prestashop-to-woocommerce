@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.16.0
+ * Version:     1.16.1
  * Author:      Frédéric GILLES
  */
 
@@ -1797,7 +1797,7 @@ SQL;
 			$extension = substr(strrchr($basename, '.'), 1);
 			$basename_without_extension = preg_replace('/(\.[^.]+)$/', '', $basename);
 			$post_title = $name;
-			$post_name = sanitize_title($basename_without_extension . '-' . $name);
+			$post_name = sanitize_title(self::rus2translit($basename_without_extension . '-' . $name));
 			$new_full_filename = $new_upload_dir . '/' . $post_name . '.' . $extension;
 
 //			print "Copy \"$old_filename\" => $new_full_filename<br />";
@@ -2279,5 +2279,34 @@ SQL;
 			return $metas;
 		}
 		
+		public static function rus2translit($string) {
+			$converter = array(
+				'а' => 'a',   'б' => 'b',   'в' => 'v',
+				'г' => 'g',   'д' => 'd',   'е' => 'e',
+				'ё' => 'e',   'ж' => 'zh',  'з' => 'z',
+				'и' => 'i',   'й' => 'y',   'к' => 'k',
+				'л' => 'l',   'м' => 'm',   'н' => 'n',
+				'о' => 'o',   'п' => 'p',   'р' => 'r',
+				'с' => 's',   'т' => 't',   'у' => 'u',
+				'ф' => 'f',   'х' => 'h',   'ц' => 'c',
+				'ч' => 'ch',  'ш' => 'sh',  'щ' => 'sch',
+				'ь' => '\'',  'ы' => 'y',   'ъ' => '\'',
+				'э' => 'e',   'ю' => 'yu',  'я' => 'ya',
+
+				'А' => 'A',   'Б' => 'B',   'В' => 'V',
+				'Г' => 'G',   'Д' => 'D',   'Е' => 'E',
+				'Ё' => 'E',   'Ж' => 'Zh',  'З' => 'Z',
+				'И' => 'I',   'Й' => 'Y',   'К' => 'K',
+				'Л' => 'L',   'М' => 'M',   'Н' => 'N',
+				'О' => 'O',   'П' => 'P',   'Р' => 'R',
+				'С' => 'S',   'Т' => 'T',   'У' => 'U',
+				'Ф' => 'F',   'Х' => 'H',   'Ц' => 'C',
+				'Ч' => 'Ch',  'Ш' => 'Sh',  'Щ' => 'Sch',
+				'Ь' => '\'',  'Ы' => 'Y',   'Ъ' => '\'',
+				'Э' => 'E',   'Ю' => 'Yu',  'Я' => 'Ya',
+			);
+			return strtr($string, $converter);
+		}
+
 	}
 }
