@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FG Prestashop to WooCommerce\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-11 08:15+0100\n"
-"PO-Revision-Date: 2015-04-11 08:16+0100\n"
+"POT-Creation-Date: 2015-07-18 09:01+0100\n"
+"PO-Revision-Date: 2015-07-18 09:01+0100\n"
 "Last-Translator: F. GILLES\n"
 "Language-Team: F. GILLES\n"
 "Language: fr_FR\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.7.5\n"
+"X-Generator: Poedit 1.7.6\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: admin_build_page.tpl.php:22
@@ -332,11 +332,11 @@ msgstr "Import PrestaShop"
 msgid ""
 "This plugin will import products, categories, tags, images and CMS from "
 "PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop "
-"versions 1.3 to 1.6."
+"versions 1.1 to 1.6."
 msgstr ""
 "Cette extension va importer les produits, les catégories, les mots-clefs, "
 "les images et le CMS depuis Prestashop vers WooCommerce/WordPress.<br /"
-">Compatible avec Prestashop versions 1.3 à 1.6."
+">Compatible avec Prestashop versions 1.1 à 1.6."
 
 #: fg-prestashop-to-woocommerce.php:205
 msgid ""
@@ -418,7 +418,7 @@ msgstr ""
 "vérifier vos paramètres. Et soyez certains que le serveur WordPress ait "
 "accès à la base de données de PrestaShop."
 
-#: fg-prestashop-to-woocommerce.php:327 fg-prestashop-to-woocommerce.php:1650
+#: fg-prestashop-to-woocommerce.php:327 fg-prestashop-to-woocommerce.php:1666
 msgid "Error:"
 msgstr "Erreur :"
 
@@ -476,47 +476,56 @@ msgid_plural "%d orders"
 msgstr[0] "%d commande"
 msgstr[1] "%d commandes"
 
-#: fg-prestashop-to-woocommerce.php:915
+#: fg-prestashop-to-woocommerce.php:916
 #, php-format
 msgid "%d category imported"
 msgid_plural "%d categories imported"
 msgstr[0] "%d catégorie importée"
 msgstr[1] "%d catégories importées"
 
-#: fg-prestashop-to-woocommerce.php:1049
+#: fg-prestashop-to-woocommerce.php:1050
 #, php-format
 msgid "%d article imported"
 msgid_plural "%d articles imported"
 msgstr[0] "%d article importé"
 msgstr[1] "%d articles importés"
 
-#: fg-prestashop-to-woocommerce.php:1050
+#: fg-prestashop-to-woocommerce.php:1051
 #, php-format
 msgid "%d tag imported"
 msgid_plural "%d tags imported"
 msgstr[0] "%d mot-clef importé"
 msgstr[1] "%d mots-clefs importés"
 
-#: fg-prestashop-to-woocommerce.php:1152
+#: fg-prestashop-to-woocommerce.php:1153
 #, php-format
 msgid "%d product category imported"
 msgid_plural "%d product categories imported"
 msgstr[0] "%d catégorie de produit importée"
 msgstr[1] "%d catégories de produit importées"
 
-#: fg-prestashop-to-woocommerce.php:1322
+#: fg-prestashop-to-woocommerce.php:1306
 #, php-format
 msgid "%d product imported"
 msgid_plural "%d products imported"
 msgstr[0] "%d produit importé"
 msgstr[1] "%d produits importés"
 
-#: fg-prestashop-to-woocommerce.php:2153
+#: fg-prestashop-to-woocommerce.php:2173
 #, php-format
 msgid "%d media imported"
 msgid_plural "%d medias imported"
 msgstr[0] "%d média importé"
 msgstr[1] "%d médias importés"
+
+#~ msgid ""
+#~ "This plugin will import products, categories, tags, images and CMS from "
+#~ "PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop "
+#~ "versions 1.3 to 1.6."
+#~ msgstr ""
+#~ "Cette extension va importer les produits, les catégories, les mots-clefs, "
+#~ "les images et le CMS depuis Prestashop vers WooCommerce/WordPress.<br /"
+#~ ">Compatible avec Prestashop versions 1.3 à 1.6."
 
 #~ msgid ""
 #~ "If you want to rerun the import, you must empty the WordPress content "

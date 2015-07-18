@@ -3,7 +3,7 @@
  * Plugin Name: FG PrestaShop to WooCommerce
  * Plugin Uri:  https://wordpress.org/plugins/fg-prestashop-to-woocommerce/
  * Description: A plugin to migrate PrestaShop e-commerce solution to WooCommerce
- * Version:     1.16.1
+ * Version:     1.16.3
  * Author:      Frédéric GILLES
  */
 
@@ -201,7 +201,7 @@ if ( !class_exists('fgp2wc', false) ) {
 			$data = $this->plugin_options;
 			
 			$data['title'] = __('Import PrestaShop', 'fgp2wc');
-			$data['description'] = __('This plugin will import products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop versions 1.3 to 1.6.', 'fgp2wc');
+			$data['description'] = __('This plugin will import products, categories, tags, images and CMS from PrestaShop to WooCommerce/WordPress.<br />Compatible with PrestaShop versions 1.1 to 1.6.', 'fgp2wc');
 			$data['description'] .= "<br />\n" . __('For any issue, please read the <a href="http://wordpress.org/plugins/fg-prestashop-to-woocommerce/faq/" target="_blank">FAQ</a> first.', 'fgp2wc');
 			$data['posts_count'] = $this->count_posts('post');
 			$data['pages_count'] = $this->count_posts('page');
@@ -769,12 +769,13 @@ SQL;
 				
 				$this->post_type = ($this->plugin_options['import_as_pages'] == 1) ? 'page' : 'post';
 
-				// Hook for doing other actions before the import
-				do_action('fgp2wc_pre_import');
-				
 				$this->product_types = $this->create_woocommerce_product_types(); // (Re)create the WooCommerce product types
 				$this->global_tax_rate = $this->get_default_tax_rate();
 				$this->import_configuration();
+				
+				// Hook for doing other actions before the import
+				do_action('fgp2wc_pre_import');
+				
 				if ( !isset($this->premium_options['skip_cms']) || !$this->premium_options['skip_cms'] ) {
 					$this->import_cms();
 				}
